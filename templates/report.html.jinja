@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>moniot Scan Report</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    h1 { color: #333; }
+    h2 { margin-top: 20px; }
+    ul { list-style-type: disc; margin-left: 20px; }
+    p { font-style: italic; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>moniot IoT Scan Report</h1>
+
+  {% for dev in devices %}
+    <h2>Device: {{ dev.ip }}{% if dev.mac %} (MAC: {{ dev.mac }}){% endif %}</h2>
+
+    {% if dev.findings %}
+      <ul>
+        {% for finding in dev.findings %}
+          <li>{{ finding }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No vulnerabilities detected.</p>
+    {% endif %}
+  {% endfor %}
+
+</body>
+</html>

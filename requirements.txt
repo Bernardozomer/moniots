@@ -1,0 +1,7 @@
+scapy
+python-nmap
+paramiko
+requests
+pysnmp
+zaproxy
+jinja2
