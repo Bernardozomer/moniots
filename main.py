@@ -5,27 +5,13 @@ Updated to implement tests I3-I6; removed stubs for I9 & I10.
 """
 import argparse
 import json
-from concurrent.futures import ThreadPoolExecutor, as_completed  # Concurrency
-
-# ARP Discovery
-from scapy.all import ARP, Ether, srp  # Packet crafting & sniffing ([stackoverflow.com](https://stackoverflow.com/questions/57102935/sniff-network-traffic-with-scapy-and-regular-expressions?utm_source=chatgpt.com))
-
-# Nmap Scanning
-import nmap  # Port/service/version scanning ([nmap.org](https://nmap.org/nsedoc/scripts/vulners.html?utm_source=chatgpt.com))
-
-# SNMP
-
-# HTML Reporting
+from concurrent.futures import ThreadPoolExecutor, as_completed 
+import nmap 
 from jinja2 import Environment, FileSystemLoader
 
 # -----------------------------------------------------------------------------
 # Discovery
 # -----------------------------------------------------------------------------
-def arp_scan(net_range, timeout=2):
-    pkt = Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=net_range)
-    ans, _ = srp(pkt, timeout=timeout, verbose=False)
-    return [{'ip': rcv.psrc, 'mac': rcv.hwsrc} for _, rcv in ans]
-
 def nmap_ping_scan(net_range):
     nm = nmap.PortScanner()
     nm.scan(hosts=net_range, arguments='-sn')
@@ -54,10 +40,8 @@ def main():
     args = parser.parse_args()
 
     # 1. Discover devices
-    devices = arp_scan(args.network)
-    if not devices:
-        hosts = nmap_ping_scan(args.network)
-        devices = [{'ip': h, 'mac': None} for h in hosts]
+    hosts = nmap_ping_scan(args.network)
+    devices = [{'ip': h, 'mac': None} for h in hosts]
 
     # 2. Fingerprint services
     nm = nmap.PortScanner()
