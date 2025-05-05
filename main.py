@@ -11,45 +11,8 @@ import nmap
 from jinja2 import Environment, FileSystemLoader
 
 
-# -----------------------------------------------------------------------------
-# Discovery
-# -----------------------------------------------------------------------------
-def nmap_ping_scan(net_range):
-    nm = nmap.PortScanner()
-    nm.scan(hosts=net_range, arguments="-sn")
-    return [h for h in nm.all_hosts() if nm[h].state() == "up"]
-
-
-# -----------------------------------------------------------------------------
-# Reporting & Main
-# -----------------------------------------------------------------------------
-def generate_html_report(results, template_dir="templates"):
-    env = Environment(loader=FileSystemLoader(template_dir))
-    tmpl = env.get_template("report.html.jinja")
-    return tmpl.render(devices=results)
-
-
 def main():
-    parser = argparse.ArgumentParser(description="moniot: IoT vulnerability scanner")
-    parser.add_argument("network", help="CIDR network range (e.g. 192.168.1.0/24)")
-    parser.add_argument(
-        "--intrusive",
-        action="store_true",
-        help="Enable brute-force and other intrusive tests",
-    )
-    parser.add_argument(
-        "--json", dest="json_out", default=None, help="Write JSON report to file"
-    )
-    parser.add_argument(
-        "--html", dest="html_out", default=None, help="Write HTML report to file"
-    )
-    parser.add_argument(
-        "--zap-api-key",
-        dest="zap_api_key",
-        default=None,
-        help="OWASP ZAP API key for ecosystem interface scans",
-    )
-    args = parser.parse_args()
+    args = setup_args()
 
     # 1. Discover devices
     hosts = nmap_ping_scan(args.network)
@@ -80,6 +43,52 @@ def main():
         html = generate_html_report(results)
         with open(args.html_out, "w") as f:
             f.write(html)
+
+
+# -----------------------------------------------------------------------------
+# Discovery
+# -----------------------------------------------------------------------------
+def nmap_ping_scan(net_range):
+    nm = nmap.PortScanner()
+    nm.scan(hosts=net_range, arguments="-sn")
+    return [h for h in nm.all_hosts() if nm[h].state() == "up"]
+
+
+# -----------------------------------------------------------------------------
+# Reporting & Main
+# -----------------------------------------------------------------------------
+def generate_html_report(results, template_dir="templates"):
+    env = Environment(loader=FileSystemLoader(template_dir))
+    tmpl = env.get_template("report.html.jinja")
+    return tmpl.render(devices=results)
+
+
+def setup_args():
+    parser = argparse.ArgumentParser(description="moniot: IoT vulnerability scanner")
+    parser.add_argument("network", help="CIDR network range (e.g. 192.168.1.0/24)")
+
+    parser.add_argument(
+        "--intrusive",
+        action="store_true",
+        help="Enable brute-force and other intrusive tests",
+    )
+
+    parser.add_argument(
+        "--json", dest="json_out", default=None, help="Write JSON report to file"
+    )
+
+    parser.add_argument(
+        "--html", dest="html_out", default=None, help="Write HTML report to file"
+    )
+
+    parser.add_argument(
+        "--zap-api-key",
+        dest="zap_api_key",
+        default=None,
+        help="OWASP ZAP API key for ecosystem interface scans",
+    )
+
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
