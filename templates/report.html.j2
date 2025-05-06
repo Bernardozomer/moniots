@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Network Device Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { color: #2c3e50; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .section { margin-bottom: 40px; }
+    </style>
+</head>
+<body>
+    <h1>Network Device Report</h1>
+
+    {% for device in devices %}
+    <div class="section">
+        <h2>Device: {{ device.ip }}</h2>
+        <p><strong>Hostname:</strong> {{ device.hostname or 'N/A' }}</p>
+        <p><strong>Status:</strong> {{ device.status }}</p>
+        <p><strong>Uptime (s):</strong> {{ device.uptime_seconds or 'N/A' }}</p>
+        <p><strong>Last Boot:</strong> {{ device.last_boot or 'N/A' }}</p>
+
+        <h3>Open Ports</h3>
+        {% if device.open_ports %}
+        <table>
+            <tr>
+                <th>Port</th>
+                <th>State</th>
+                <th>Service</th>
+                <th>Product</th>
+                <th>Version</th>
+                <th>CPE</th>
+            </tr>
+            {% for port in device.open_ports %}
+            <tr>
+                <td>{{ port.port }}</td>
+                <td>{{ port.state }}</td>
+                <td>{{ port.service }}</td>
+                <td>{{ port.product or 'N/A' }}</td>
+                <td>{{ port.version or 'N/A' }}</td>
+                <td>{{ port.cpe or 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No open ports found.</p>
+        {% endif %}
+
+        <h3>OS Matches</h3>
+        {% if device.os_matches %}
+        {% for os in device.os_matches %}
+        <h4>{{ os.name }} (Accuracy: {{ os.accuracy }}%)</h4>
+        <table>
+            <tr>
+                <th>Type</th>
+                <th>Vendor</th>
+                <th>OS Family</th>
+                <th>OS Gen</th>
+                <th>Accuracy</th>
+                <th>CPE</th>
+            </tr>
+            {% for cls in os.osclasses %}
+            <tr>
+                <td>{{ cls.type }}</td>
+                <td>{{ cls.vendor }}</td>
+                <td>{{ cls.osfamily }}</td>
+                <td>{{ cls.osgen or 'N/A' }}</td>
+                <td>{{ cls.accuracy }}</td>
+                <td>{{ cls.cpe | join(', ') if cls.cpe else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endfor %}
+        {% else %}
+        <p>No OS match data.</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+</body>
+</html>
