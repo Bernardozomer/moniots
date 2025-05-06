@@ -2,95 +2,178 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>IoT Vulnerability Report</title>
+  <title>Moniots' Vulnerability Report</title>
   <style>
-    body { font-family: sans-serif; margin: 2em; }
-    h1, h2 { color: #333; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 2em; }
-    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: left; }
-    th { background-color: #eee; }
-    .vulnerable { background-color: #ffcccc; }
+    /* Color Palette */
+    :root {
+      --brown-dark:   #5D4037;    /* base dark brown */ 
+      --brown-medium: #8D6E63;    /* mid-tone brown */
+      --brown-light:  #D7CCC8;    /* pale accent brown */
+      --accent:       #D47E30;    /* cinnamon highlight */ 
+      --text-color:   #2E1A12;    /* dark text on light */
+      --bg-color:     #F3EAE0;    /* warm off-white */
+      --card-bg:      #FFFFFF;    /* pure white for cards */
+    }
+
+    /* Global Styles */
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      margin: 2em;
+    }
+
+    h1 { 
+      font-size: 2em; 
+      color: var(--brown-dark); 
+      margin-bottom: 0.5em; 
+    }
+    h2 { 
+      font-size: 1.5em; 
+      color: var(--brown-medium); 
+      margin: 1.5em 0 0.5em; 
+    }
+
+    /* Card Layout */
+    .device-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 1em;
+      margin-bottom: 1.5em;
+    }
+
+    .section-title {
+      font-size: 1.2em;
+      color: var(--brown-dark);
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+      border-bottom: 2px solid var(--brown-light);
+      padding-bottom: 0.2em;
+    }
+
+    /* Table Styling */
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 0.5em; /* space rows instead of heavy lines */ 
+      margin: 0.5em 0 1em;
+    }
+    th {
+      background: var(--brown-light);
+      padding: 0.5em;
+      text-align: left;
+      border-bottom: 1px solid var(--brown-medium);
+    }
+    td {
+      background: var(--card-bg);
+      padding: 0.5em;
+    }
+    tbody tr:nth-child(even) td {
+      background: var(--brown-light);
+    }
+
+    /* Vulnerable Findings */
+    .vulnerable th,
+    .vulnerable td {
+      background-color: #FFDDE0; /* soft red highlight */
+    }
+
+    /* Collapsible OS Matches */
+    details {
+      margin: 0.5em 0;
+    }
+    summary {
+      font-weight: bold;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <h1>IoT Vulnerability Report</h1>
+  <h1>Moniots' Vulnerability Report</h1>
   <p>Generated: {{ now }}</p>
 
   {% for device, findings in devices.items() %}
+  <div class="device-card">
     <h2>Device: {{ device.ip }}</h2>
-    <p>Status: {{ device.status }}</p>
-    <p>Hostname: {{ device.hostname or 'N/A' }}</p>
-    <p>Uptime (s): {{ device.uptime_seconds or 'Unknown' }}</p>
-    <p>Last Boot: {{ device.last_boot or 'Unknown' }}</p>
+    <p><strong>Status:</strong> {{ device.status }}</p>
+    <p><strong>Hostname:</strong> {{ device.hostname or 'N/A' }}</p>
+    <p><strong>Uptime (s):</strong> {{ device.uptime_seconds or 'Unknown' }}</p>
+    <p><strong>Last Boot:</strong> {{ device.last_boot or 'Unknown' }}</p>
 
-    <h3>Open Ports</h3>
-    {% if device.open_ports %}
+    <div class="section">
+      <div class="section-title">OS Matches</div>
+      {% if device.os_matches %}
+      <details>
+        <summary>Show OS Matches ({{ device.os_matches|length }})</summary>
+        <ul>
+          {% for match in device.os_matches %}
+          <li>
+            <strong>{{ match.name }}</strong> ({{ match.accuracy }}%):
+            {% set classes = [] %}
+            {% for cls in match.osclasses %}
+              {% set s = cls.vendor ~ ' ' ~ cls.osfamily ~ (cls.osgen and ' ' ~ cls.osgen or '') %}
+              {% if s not in classes %}{% do classes.append(s) %}{% endif %}
+            {% endfor %}
+            {{ classes|join(', ') }}
+          </li>
+          {% endfor %}
+        </ul>
+      </details>
+      {% else %}
+      <p>No OS fingerprint available.</p>
+      {% endif %}
+    </div>
+
+    <div class="section">
+      <div class="section-title">Open Ports</div>
+      {% if device.open_ports %}
       <table>
         <thead>
           <tr>
-            <th>Port</th>
-            <th>State</th>
-            <th>Service</th>
-            <th>Product</th>
-            <th>Version</th>
-            <th>CPE</th>
+            <th>Port</th><th>State</th><th>Service</th><th>Product</th>
+            <th>Version</th><th>CPE</th>
           </tr>
         </thead>
         <tbody>
           {% for port in device.open_ports %}
           <tr>
-            <td>{{ port.port }}</td>
-            <td>{{ port.state }}</td>
-            <td>{{ port.service }}</td>
-            <td>{{ port.product }}</td>
-            <td>{{ port.version }}</td>
-            <td>{{ port.cpe }}</td>
+            <td>{{ port.port }}</td><td>{{ port.state }}</td>
+            <td>{{ port.service }}</td><td>{{ port.product }}</td>
+            <td>{{ port.version }}</td><td>{{ port.cpe }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-    {% else %}
+      {% else %}
       <p>No open ports detected.</p>
-    {% endif %}
+      {% endif %}
+    </div>
 
-    <h3>OS Matches</h3>
-    {% if device.os_matches %}
-      {% for match in device.os_matches %}
-        <p><strong>{{ match.name }}</strong> (Accuracy: {{ match.accuracy }}%)</p>
-        <ul>
-          {% for cls in match.osclasses %}
-            <li>{{ cls.vendor }} {{ cls.osfamily }} {{ cls.osgen or '' }} - Accuracy: {{ cls.accuracy }} - CPEs: {{ cls.cpe | join(', ') }}</li>
-          {% endfor %}
-        </ul>
-      {% endfor %}
-    {% else %}
-      <p>No OS fingerprint available.</p>
-    {% endif %}
-
-    <h3>Credential Vulnerabilities</h3>
-    {% if findings %}
+    <div class="section">
+      <div class="section-title">Credential Vulnerabilities</div>
+      {% if findings %}
       <table class="vulnerable">
         <thead>
-          <tr>
-            <th>Service</th>
-            <th>Username</th>
-            <th>Password</th>
-          </tr>
+          <tr><th>Service</th><th>Username</th><th>Password</th></tr>
         </thead>
         <tbody>
-          {% for finding in findings %}
+          {% for f in findings %}
           <tr>
-            <td>{{ finding.service.value }}</td>
-            <td>{{ finding.username }}</td>
-            <td>{{ finding.password }}</td>
+            <td>{{ f.service.value }}</td>
+            <td>{{ f.username }}</td>
+            <td>{{ f.password }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-    {% else %}
+      {% else %}
       <p>No credential vulnerabilities found.</p>
-    {% endif %}
-    <hr>
+      {% endif %}
+    </div>
+  </div>
   {% endfor %}
 </body>
 </html>

@@ -244,7 +244,7 @@ def generate_json_report(results):
 
 def generate_html_report(results):
     """Generate an HTML report from the scan results using Jinja2 templates."""
-    env = Environment(loader=FileSystemLoader("."))
+    env = Environment(loader=FileSystemLoader("."), extensions=["jinja2.ext.do"])
     tmpl = env.get_template(REPORT_TEMPLATE)
     return tmpl.render(
         devices=results, now=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
