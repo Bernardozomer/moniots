@@ -1,84 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Network Device Report</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h2 { color: #2c3e50; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .section { margin-bottom: 40px; }
-    </style>
+  <meta charset="UTF-8">
+  <title>IoT Vulnerability Report</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; }
+    h1, h2 { color: #333; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 2em; }
+    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: left; }
+    th { background-color: #eee; }
+    .vulnerable { background-color: #ffcccc; }
+  </style>
 </head>
 <body>
-    <h1>Network Device Report</h1>
+  <h1>IoT Vulnerability Report</h1>
+  <p>Generated: {{ now }}</p>
 
-    {% for device in devices %}
-    <div class="section">
-        <h2>Device: {{ device.ip }}</h2>
-        <p><strong>Hostname:</strong> {{ device.hostname or 'N/A' }}</p>
-        <p><strong>Status:</strong> {{ device.status }}</p>
-        <p><strong>Uptime (s):</strong> {{ device.uptime_seconds or 'N/A' }}</p>
-        <p><strong>Last Boot:</strong> {{ device.last_boot or 'N/A' }}</p>
+  {% for device, findings in devices.items() %}
+    <h2>Device: {{ device.ip }}</h2>
+    <p>Status: {{ device.status }}</p>
+    <p>Hostname: {{ device.hostname or 'N/A' }}</p>
+    <p>Uptime (s): {{ device.uptime_seconds or 'Unknown' }}</p>
+    <p>Last Boot: {{ device.last_boot or 'Unknown' }}</p>
 
-        <h3>Open Ports</h3>
-        {% if device.open_ports %}
-        <table>
-            <tr>
-                <th>Port</th>
-                <th>State</th>
-                <th>Service</th>
-                <th>Product</th>
-                <th>Version</th>
-                <th>CPE</th>
-            </tr>
-            {% for port in device.open_ports %}
-            <tr>
-                <td>{{ port.port }}</td>
-                <td>{{ port.state }}</td>
-                <td>{{ port.service }}</td>
-                <td>{{ port.product or 'N/A' }}</td>
-                <td>{{ port.version or 'N/A' }}</td>
-                <td>{{ port.cpe or 'N/A' }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% else %}
-        <p>No open ports found.</p>
-        {% endif %}
+    <h3>Open Ports</h3>
+    {% if device.open_ports %}
+      <table>
+        <thead>
+          <tr>
+            <th>Port</th>
+            <th>State</th>
+            <th>Service</th>
+            <th>Product</th>
+            <th>Version</th>
+            <th>CPE</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for port in device.open_ports %}
+          <tr>
+            <td>{{ port.port }}</td>
+            <td>{{ port.state }}</td>
+            <td>{{ port.service }}</td>
+            <td>{{ port.product }}</td>
+            <td>{{ port.version }}</td>
+            <td>{{ port.cpe }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No open ports detected.</p>
+    {% endif %}
 
-        <h3>OS Matches</h3>
-        {% if device.os_matches %}
-        {% for os in device.os_matches %}
-        <h4>{{ os.name }} (Accuracy: {{ os.accuracy }}%)</h4>
-        <table>
-            <tr>
-                <th>Type</th>
-                <th>Vendor</th>
-                <th>OS Family</th>
-                <th>OS Gen</th>
-                <th>Accuracy</th>
-                <th>CPE</th>
-            </tr>
-            {% for cls in os.osclasses %}
-            <tr>
-                <td>{{ cls.type }}</td>
-                <td>{{ cls.vendor }}</td>
-                <td>{{ cls.osfamily }}</td>
-                <td>{{ cls.osgen or 'N/A' }}</td>
-                <td>{{ cls.accuracy }}</td>
-                <td>{{ cls.cpe | join(', ') if cls.cpe else 'N/A' }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% endfor %}
-        {% else %}
-        <p>No OS match data.</p>
-        {% endif %}
-    </div>
-    {% endfor %}
+    <h3>OS Matches</h3>
+    {% if device.os_matches %}
+      {% for match in device.os_matches %}
+        <p><strong>{{ match.name }}</strong> (Accuracy: {{ match.accuracy }}%)</p>
+        <ul>
+          {% for cls in match.osclasses %}
+            <li>{{ cls.vendor }} {{ cls.osfamily }} {{ cls.osgen or '' }} - Accuracy: {{ cls.accuracy }} - CPEs: {{ cls.cpe | join(', ') }}</li>
+          {% endfor %}
+        </ul>
+      {% endfor %}
+    {% else %}
+      <p>No OS fingerprint available.</p>
+    {% endif %}
 
+    <h3>Credential Vulnerabilities</h3>
+    {% if findings %}
+      <table class="vulnerable">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Username</th>
+            <th>Password</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for finding in findings %}
+          <tr>
+            <td>{{ finding.service.value }}</td>
+            <td>{{ finding.username }}</td>
+            <td>{{ finding.password }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No credential vulnerabilities found.</p>
+    {% endif %}
+    <hr>
+  {% endfor %}
 </body>
 </html>

@@ -187,6 +187,7 @@ def parse_device_info(hosts):
                     osclasses=osclasses,
                 )
             )
+        os_matches = sorted(os_matches, key=lambda m: int(m.accuracy), reverse=True)[:3]
 
         devices.append(
             Device(
