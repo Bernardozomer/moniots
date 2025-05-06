@@ -9,6 +9,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import nmap
 from jinja2 import Environment, FileSystemLoader
+import csv
+
+RES_DIR = "./res"
+COMMON_CREDENTIALS = f"{RES_DIR}/common_credentials.csv"
 
 
 def main():
@@ -23,7 +27,10 @@ def main():
     nm.scan(hosts=args.network, arguments="-sV -O -T4")
 
     # 3. Define common credentials
-    default_creds = [("admin", "admin"), ("root", "root"), ("user", "password")]
+    default_creds = []
+    with open(COMMON_CREDENTIALS, "r") as fp:
+        reader = csv.reader(fp)
+        default_creds = [(row[0], row[1]) for row in reader if len(row) >= 2]
 
     results = []
     with ThreadPoolExecutor(max_workers=20) as exec:
