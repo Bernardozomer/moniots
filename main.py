@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-moniot.py: Monitor IoT devices for OWASP IoT Top 10 vulnerabilities.
-"""
+
 import argparse
 import csv
 from datetime import datetime
