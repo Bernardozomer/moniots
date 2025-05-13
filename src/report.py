@@ -1,6 +1,6 @@
+import json
 from dataclasses import asdict
 from datetime import datetime
-import json
 
 from jinja2 import Environment, FileSystemLoader
 

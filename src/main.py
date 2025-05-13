@@ -2,7 +2,6 @@
 
 import argparse
 
-
 import creds
 import discovery
 import report
