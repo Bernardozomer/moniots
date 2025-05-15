@@ -49,7 +49,7 @@
       padding: 1.5em;
       margin: 2em 0;
     }
-    
+
     .device-card h2:first-child {
       margin-top: 0;
     }
@@ -72,6 +72,7 @@
     th, td {
       padding: 0.6em 0.5em;
       text-align: left;
+      vertical-align: top;
     }
 
     th {
@@ -106,7 +107,9 @@
   <h1>Moniots' Vulnerability Report</h1>
   <p>Generated: {{ now }}</p>
 
-  {% for device, findings in devices.items() %}
+  {# Iterate over a simple list of serialized devices #}
+  {% for device in devices %}
+    {% set findings = device.findings %}
   <div class="device-card">
     <h2>Device: {{ device.ip }}</h2>
     <p><strong>Status:</strong> {{ device.status }}</p>
@@ -125,8 +128,8 @@
             <strong>{{ match.name }}</strong> ({{ match.accuracy }}%):
             {% set classes = [] %}
             {% for cls in match.osclasses %}
-              {% set s = cls.vendor ~ ' ' ~ cls.osfamily ~ (cls.osgen and ' ' ~ cls.osgen or '') %}
-              {% if s not in classes %}{% set _ = classes.append(s) %}{% endif %}
+              {% set entry = cls.vendor ~ ' ' ~ cls.osfamily ~ (cls.osgen and ' ' ~ cls.osgen or '') %}
+              {% if entry not in classes %}{% set _ = classes.append(entry) %}{% endif %}
             {% endfor %}
             {{ classes|join(', ') }}
           </li>
@@ -151,9 +154,12 @@
         <tbody>
           {% for port in device.open_ports %}
           <tr>
-            <td>{{ port.port }}</td><td>{{ port.state }}</td>
-            <td>{{ port.service }}</td><td>{{ port.product }}</td>
-            <td>{{ port.version }}</td><td>{{ port.cpe }}</td>
+            <td>{{ port.port }}</td>
+            <td>{{ port.state }}</td>
+            <td>{{ port.service }}</td>
+            <td>{{ port.product or '-' }}</td>
+            <td>{{ port.version or '-' }}</td>
+            <td>{{ port.cpe or '-' }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -165,13 +171,13 @@
 
     <div class="section">
       <div class="section-title">Credential Vulnerabilities</div>
-      {% if findings %}
+      {% if findings.credentials %}
       <table class="vulnerable">
         <thead>
           <tr><th>Service</th><th>Username</th><th>Password</th></tr>
         </thead>
         <tbody>
-          {% for f in findings %}
+          {% for f in findings.credentials %}
           <tr>
             <td>{{ f.service.value }}</td>
             <td>{{ f.username }}</td>
@@ -184,6 +190,42 @@
       <p>No credential vulnerabilities found.</p>
       {% endif %}
     </div>
+
+    <div class="section">
+      <div class="section-title">ZAP Alerts</div>
+      {% if findings.zap_findings %}
+      <table>
+        <thead>
+          <tr>
+            <th>Alert</th><th>Risk</th><th>Confidence</th>
+            <th>CWE</th><th>WASC</th><th>URL</th>
+            <th>Parameter</th><th>Method</th>
+            <th>Evidence</th><th>Description</th><th>Solution</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in findings.zap_findings %}
+          <tr>
+            <td>{{ a.alert or '-' }}</td>
+            <td>{{ a.risk or '-' }}</td>
+            <td>{{ a.confidence or '-' }}</td>
+            <td>{{ a.cwe or '-' }}</td>
+            <td>{{ a.wasc or '-' }}</td>
+            <td>{{ a.url or '-' }}</td>
+            <td>{{ a.parameter or '-' }}</td>
+            <td>{{ a.method or '-' }}</td>
+            <td>{{ a.evidence or '-' }}</td>
+            <td>{{ a.description or '-' }}</td>
+            <td>{{ a.solution or '-' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>No ZAP alerts detected.</p>
+      {% endif %}
+    </div>
+
   </div>
   {% endfor %}
 </body>
