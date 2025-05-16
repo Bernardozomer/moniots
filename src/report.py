@@ -14,27 +14,20 @@ def generate_json_report(results):
     return json.dumps(ser_res, indent=2)
 
 
-def generate_html_report(results):
-    """Generate an HTML report from the scan results using Jinja2 templates."""
+def generate_html_report(results, network, now):
     env = Environment(loader=FileSystemLoader("."), extensions=["jinja2.ext.do"])
     tmpl = env.get_template(REPORT_TEMPLATE)
-    ser_res = serialize_results(results)
-    return tmpl.render(
-        devices=ser_res, now=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    )
+    devices = serialize_results(results)
+    formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
+    return tmpl.render(devices=devices, network=network, now=formatted_now)
 
 
 def serialize_results(results):
-    ser_res = []
+    ser = []
 
     for device, sections in results.items():
-        entry = asdict(device)
-
-        entry["findings"] = {
-            "credentials": [asdict(f) for f in sections["credentials"]],
-            "zap_findings": [asdict(z) for z in sections["zap_alerts"]],
-        }
-
-        ser_res.append(entry)
-
-    return ser_res
+        entry = asdict(device)  # all the Device fields
+        entry["credentials"] = [asdict(f) for f in sections["credentials"]]
+        entry["zap_alerts"] = [asdict(z) for z in sections["zap_alerts"]]
+        ser.append(entry)
+    return ser

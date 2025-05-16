@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from datetime import datetime as dt
 
 import creds
 import discovery
@@ -44,7 +45,7 @@ def main():
             f.write(json_)
 
     if args.html_out:
-        html = report.generate_html_report(merged_results)
+        html = report.generate_html_report(merged_results, args.network, dt.now())
         with open(args.html_out, "w") as f:
             f.write(html)
 
