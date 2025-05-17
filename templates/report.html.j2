@@ -130,7 +130,7 @@
       border: 1px solid var(--clr-surface-tonal-a20);
     }
     table.inner th {
-      background: var(--clr-surface);
+      background: var(--clr-surface-a0);
       color: var(--clr-light-a0);
       font-weight: 600;
     }
@@ -165,7 +165,7 @@
     <tbody>
       {% for dev in devices %}
       <tr data-ip="{{ dev.ip }}">
-        <td><a class="row-link">{{ dev.ip }}</a></td>
+        <td><a class="row-link" onclick="showDetail('{{ dev.ip }}')">{{ dev.ip }}</a></td>
         <td>{{ dev.hostname or '—' }}</td>
         <td>{{ dev.open_ports|length }}</td>
         <td>{{ (dev.findings|length + dev.zap_alerts|length) }}</td>
@@ -178,91 +178,136 @@
   {% for dev in devices %}
   <div id="detail-{{ dev.ip }}" class="detail">
     <h2>{{ dev.ip }} ({{ dev.hostname or 'N/A' }})</h2>
-    <p><strong>Status:</strong> {{ dev.status }}</p>
-    <p><strong>Uptime:</strong> {{ dev.uptime_seconds or 'Unknown' }} s</p>
-    <p><strong>Last Boot:</strong> {{ dev.last_boot or 'Unknown' }}</p>
+    <p>
+      <strong>Status:</strong> {{ dev.status }} |
+      <strong>Uptime:</strong> {{ dev.uptime_seconds or 'Unknown' }} s |
+      <strong>Last Boot:</strong> {{ dev.last_boot or 'Unknown' }}
+    </p>
 
-    <div class="section-title">OS Fingerprints <span class="badge">{{ dev.os_matches|length }}</span></div>
-    {% if dev.os_matches %}
+    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('os-{{ dev.ip }}')">
+      OS Matches <span class="badge">{{ dev.os_matches|length }}</span>
+    </div>
+    <div id="os-{{ dev.ip }}" style="display:none;">
+      {% if dev.os_matches %}
+      <ul>
       {% for os in dev.os_matches %}
-        <p><strong>{{ os.name }}</strong> ({{ os.accuracy }}%)</p>
+      <li>
+        <strong>{{ os.name }}</strong> ({{ os.accuracy }}%)<br>
+        {% for cls in os.osclasses %}
+        <small>{{ cls.type }} / {{ cls.vendor }} {{ cls.osfamily }} {{ cls.osgen or '' }}</small><br>
+        {% endfor %}
+      </li>
       {% endfor %}
-    {% else %}
-      <p>None detected.</p>
-    {% endif %}
+      </ul>
+      {% else %}
+      <p>No OS match.</p>
+      {% endif %}
+    </div>
 
-    <div class="section-title">Open Ports</div>
+    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('ports-{{ dev.ip }}')">
+      Open Ports <span class="badge">{{ dev.open_ports|length }}</span>
+    </div>
+    <div id="ports-{{ dev.ip }}" style="display:none;">
     {% if dev.open_ports %}
     <table class="inner">
-      <thead>
-        <tr><th>Port</th><th>State</th><th>Service</th></tr>
-      </thead>
+      <thead><tr><th>Port</th><th>State</th><th>Service</th><th>Product</th><th>Version</th><th>CPE</th></tr></thead>
       <tbody>
-        {% for p in dev.open_ports %}
-        <tr>
-          <td>{{ p.port }}</td><td>{{ p.state }}</td><td>{{ p.service }}</td>
-        </tr>
-        {% endfor %}
+      {% for p in dev.open_ports %}
+      <tr>
+        <td>{{ p.port }}</td>
+        <td>{{ p.state }}</td>
+        <td>{{ p.service }}</td>
+        <td>{{ p.product or '—' }}</td>
+        <td>{{ p.version or '—' }}</td>
+        <td>{{ p.cpe or '—' }}</td>
+      </tr>
+      {% endfor %}
       </tbody>
     </table>
     {% else %}
-      <p>None detected.</p>
+      <p>No open ports.</p>
     {% endif %}
+    </div>
 
-    <div class="section-title">Credential Tests <span class="badge">{{ dev.findings|length }}</span></div>
+    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('creds-{{ dev.ip }}')">
+      Credential Tests <span class="badge">{{ dev.findings|length }}</span>
+    </div>
+    <div id="creds-{{ dev.ip }}" style="display:none;">
     {% if dev.findings %}
     <table class="inner">
       <thead>
-        <tr><th>Service</th><th>User</th><th>Pass</th></tr>
+      <tr><th>Service</th><th>User</th><th>Pass</th></tr>
       </thead>
       <tbody>
-        {% for c in dev.findings %}
-        <tr>
-          <td>{{ c.service.value }}</td>
-          <td>{{ c.username }}</td>
-          <td>{{ c.password }}</td>
-        </tr>
-        {% endfor %}
+      {% for c in dev.findings %}
+      <tr>
+        <td>{{ c.service.value }}</td>
+        <td>{{ c.username }}</td>
+        <td>{{ c.password }}</td>
+      </tr>
+      {% endfor %}
       </tbody>
     </table>
     {% else %}
       <p>No credentials succeeded.</p>
     {% endif %}
+    </div>
 
-    <div class="section-title">ZAP Alerts <span class="badge">{{ dev.zap_alerts|length }}</span></div>
+    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('zap-{{ dev.ip }}')">
+      ZAP Alerts <span class="badge">{{ dev.zap_alerts|length }}</span>
+    </div>
+    <div id="zap-{{ dev.ip }}" style="display:none;">
     {% if dev.zap_alerts %}
     <table class="inner">
-      <thead>
-        <tr>
-          <th>Alert</th><th>Risk</th><th>URL</th><th>Param</th>
-        </tr>
-      </thead>
+      <thead><tr><th>Alert</th><th>Risk</th><th>URL</th><th>Param</th></tr></thead>
       <tbody>
-        {% for a in dev.zap_alerts %}
-        <tr>
-          <td>{{ a.alert }}</td>
-          <td>{{ a.risk }}</td>
-          <td>{{ a.url }}</td>
-          <td>{{ a.parameter or '—' }}</td>
-        </tr>
-        {% endfor %}
+      {% for a in dev.zap_alerts %}
+      <tr>
+        <td>{{ a.alert }}</td>
+        <td><span class="badge {{ 'danger' if a.risk=='High' else 'warn' }}">{{ a.risk }}</span></td>
+        <td>{{ a.url }}</td>
+        <td>{{ a.parameter or '—' }}</td>
+      </tr>
+      <tr>
+        <td colspan="4">
+        <details>
+          <summary>Details</summary>
+          <p><strong>Confidence:</strong> {{ a.confidence }}</p>
+          <p><strong>CWE/WASC:</strong> {{ a.cwe or '—' }} / {{ a.wasc or '—' }}</p>
+          <p><strong>Method:</strong> {{ a.method or '—' }}</p>
+          <p><strong>Evidence:</strong> {{ a.evidence or '—' }}</p>
+          <p><strong>Description:</strong> {{ a.description or '—' }}</p>
+          <p><strong>Solution:</strong> {{ a.solution or '—' }}</p>
+        </details>
+        </td>
+      </tr>
+      {% endfor %}
       </tbody>
     </table>
     {% else %}
-      <p>No alerts.</p>
+      <p>No ZAP alerts.</p>
     {% endif %}
-  </div>
-  {% endfor %}
+    </div>
+    </div>
+    {% endfor %}
 
   <script>
-    document.querySelectorAll('table.summary tbody tr').forEach(row => {
-      row.addEventListener('click', () => {
-        const ip = row.dataset.ip;
-        document.querySelectorAll('.detail').forEach(d => d.classList.remove('active'));
-        document.getElementById('detail-' + ip).classList.add('active');
-        window.scrollTo(0, document.getElementById('detail-' + ip).offsetTop - 20);
-      });
-    });
+    function showDetail(ip) {
+      document.querySelectorAll('.detail').forEach(d => d.classList.remove('active'));
+      document.getElementById('detail-' + ip).classList.add('active');
+      window.scrollTo({ top: document.getElementById('detail-' + ip).offsetTop - 20, behavior: 'smooth' });
+    }
   </script>
+
+  <script>
+    function toggleSection(id) {
+      var el = document.getElementById(id);
+      if (el.style.display === "none" || el.style.display === "") {
+        el.style.display = "block";
+      } else {
+        el.style.display = "none";
+      }
+    }
+</script>
 </body>
 </html>
