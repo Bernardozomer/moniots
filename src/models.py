@@ -67,3 +67,18 @@ class CommonCredentialsFinding:
 class Service(Enum):
     SSH = "SSH"
     HTTP = "HTTP"
+
+
+@dataclass(frozen=True)
+class ZAPAlert:
+    alert: str
+    risk: str
+    confidence: str
+    cwe: str
+    wasc: str
+    url: str
+    parameter: Optional[str]
+    method: Optional[str]
+    evidence: Optional[str]
+    description: Optional[str]
+    solution: Optional[str]

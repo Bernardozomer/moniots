@@ -2,189 +2,312 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Moniots' Vulnerability Report</title>
+  <title>Moniots IoT Cybersecurity Report</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --brown-dark:   #5D4037;
-      --brown-medium: #8D6E63;
-      --brown-light:  #D7CCC8;
-      --accent:       #D47E30;
-      --text-color:   #2E1A12;
-      --bg-color:     #F3EAE0;
-      --card-bg:      #FFFFFF;
+      /** Base colors */
+      --clr-dark-a0: #000000;
+      --clr-light-a0: #ffffff;
+
+      /** Theme primary colors */
+      --clr-primary-a0: #bf7f43;
+      --clr-primary-a10: #c88d57;
+      --clr-primary-a20: #d09a6b;
+      --clr-primary-a30: #d8a87f;
+      --clr-primary-a40: #e0b694;
+      --clr-primary-a50: #e7c5a9;
+
+      /** Theme surface colors */
+      --clr-surface-a0: #212020;
+      --clr-surface-a10: #363535;
+      --clr-surface-a20: #4c4b4b;
+      --clr-surface-a30: #636262;
+      --clr-surface-a40: #7b7a7a;
+      --clr-surface-a50: #949393;
+
+      /** Theme tonal surface colors */
+      --clr-surface-tonal-a0: #2f2924;
+      --clr-surface-tonal-a10: #433d38;
+      --clr-surface-tonal-a20: #58534e;
+      --clr-surface-tonal-a30: #6e6965;
+      --clr-surface-tonal-a40: #84807d;
+      --clr-surface-tonal-a50: #9c9895;
     }
 
     html, body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg-color);
-      color: var(--text-color);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
+      margin: 0; padding: 0;
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--clr-surface-a0);
+      color: var(--clr-light-a0);
+      line-height: 1.5;
     }
 
     body {
-      padding: 2em;
-      max-width: 768px;
-      margin: 0 auto;
+      max-width: 960px;
+      margin: 2rem auto; padding: 0 1rem;
     }
 
     h1 {
-      font-size: 2em;
-      color: var(--brown-dark);
-      margin: 0 0 1em 0;
+      font-size: 2rem; font-weight: 600;
+      color: var(--clr-primary-a0);
+      margin-bottom: 0.5rem;
     }
 
-    h2 {
-      font-size: 1.5em;
-      color: var(--brown-medium);
-      margin: 1em 0 0.5em;
+    .subtitle {
+      color: var(--clr-surface-a40);
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
     }
 
-    .device-card {
-      background: var(--card-bg);
+    /* Summary table */
+    table.summary {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+    table.summary th, table.summary td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--clr-surface-tonal-a10);
+    }
+    table.summary th {
+      background: var(--clr-primary-a0);
+      color: var(--clr-light-a0);
+      font-weight: 600;
+    }
+    table.summary tr:hover {
+      background: var(--clr-primary-a10);
+      cursor: pointer;
+    }
+    a.row-link {
+      color: inherit;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+    }
+
+    /* Detail cards */
+    .detail {
+      display: none;
+      background: var(--clr-surface-a10);
+      border: 1px solid var(--clr-surface-tonal-a20);
       border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      padding: 1.5em;
-      margin: 2em 0;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
-    
-    .device-card h2:first-child {
+    .detail.active { display: block; }
+
+    .detail h2 {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--clr-light-a0);
       margin-top: 0;
+    }
+    .detail p {
+      margin: 0.5rem 0;
     }
 
     .section-title {
-      font-weight: bold;
-      font-size: 1.2em;
-      color: var(--brown-dark);
-      margin: 1.5em 0 0.5em;
-      border-bottom: 2px solid var(--brown-light);
-      padding-bottom: 0.25em;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      border-bottom: 2px solid var(--clr-surface-tonal-a10);
+      color: var(--clr-surface-a50);
     }
 
-    table {
+    table.inner {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 0.5em;
+      margin-top: 0.5rem;
+    }
+    table.inner th, table.inner td {
+      padding: 0.5rem;
+      border: 1px solid var(--clr-surface-tonal-a20);
+    }
+    table.inner th {
+      background: var(--clr-surface-a0);
+      color: var(--clr-light-a0);
+      font-weight: 600;
     }
 
-    th, td {
-      padding: 0.6em 0.5em;
-      text-align: left;
-    }
-
-    th {
-      background: var(--brown-light);
-      border-bottom: 1px solid var(--brown-medium);
-    }
-
-    td {
-      background: var(--card-bg);
-    }
-
-    tbody tr:nth-child(even) td {
-      background: var(--brown-light);
-    }
-
-    .vulnerable th,
-    .vulnerable td {
-      background-color: #FFDDE0;
-    }
-
-    details {
-      margin: 0.5em 0;
-    }
-
-    summary {
-      font-weight: bold;
-      cursor: pointer;
+    .badge {
+      display: inline-block;
+      background: var(--clr-primary-a0);
+      color: var(--clr-light-a0);
+      padding: 0.2em 0.5em;
+      border-radius: 999px;
+      font-size: 0.8em;
+      vertical-align: middle;
     }
   </style>
 </head>
 <body>
-  <h1>Moniots' Vulnerability Report</h1>
-  <p>Generated: {{ now }}</p>
-
-  {% for device, findings in devices.items() %}
-  <div class="device-card">
-    <h2>Device: {{ device.ip }}</h2>
-    <p><strong>Status:</strong> {{ device.status }}</p>
-    <p><strong>Hostname:</strong> {{ device.hostname or 'N/A' }}</p>
-    <p><strong>Uptime (s):</strong> {{ device.uptime_seconds or 'Unknown' }}</p>
-    <p><strong>Last Boot:</strong> {{ device.last_boot or 'Unknown' }}</p>
-
-    <div class="section">
-      <div class="section-title">OS Matches</div>
-      {% if device.os_matches %}
-      <details>
-        <summary>Show OS Matches ({{ device.os_matches|length }})</summary>
-        <ul>
-          {% for match in device.os_matches %}
-          <li>
-            <strong>{{ match.name }}</strong> ({{ match.accuracy }}%):
-            {% set classes = [] %}
-            {% for cls in match.osclasses %}
-              {% set s = cls.vendor ~ ' ' ~ cls.osfamily ~ (cls.osgen and ' ' ~ cls.osgen or '') %}
-              {% if s not in classes %}{% set _ = classes.append(s) %}{% endif %}
-            {% endfor %}
-            {{ classes|join(', ') }}
-          </li>
-          {% endfor %}
-        </ul>
-      </details>
-      {% else %}
-      <p>No OS fingerprint available.</p>
-      {% endif %}
-    </div>
-
-    <div class="section">
-      <div class="section-title">Open Ports</div>
-      {% if device.open_ports %}
-      <table>
-        <thead>
-          <tr>
-            <th>Port</th><th>State</th><th>Service</th><th>Product</th>
-            <th>Version</th><th>CPE</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for port in device.open_ports %}
-          <tr>
-            <td>{{ port.port }}</td><td>{{ port.state }}</td>
-            <td>{{ port.service }}</td><td>{{ port.product }}</td>
-            <td>{{ port.version }}</td><td>{{ port.cpe }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-      <p>No open ports detected.</p>
-      {% endif %}
-    </div>
-
-    <div class="section">
-      <div class="section-title">Credential Vulnerabilities</div>
-      {% if findings %}
-      <table class="vulnerable">
-        <thead>
-          <tr><th>Service</th><th>Username</th><th>Password</th></tr>
-        </thead>
-        <tbody>
-          {% for f in findings %}
-          <tr>
-            <td>{{ f.service.value }}</td>
-            <td>{{ f.username }}</td>
-            <td>{{ f.password }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-      <p>No credential vulnerabilities found.</p>
-      {% endif %}
-    </div>
+  <h1>🕵️ Moniots IoT Cybersecurity Report</h1>
+  <div class="subtitle">
+    {{ devices|length }} devices found on {{ network }} at {{ now }}
   </div>
-  {% endfor %}
+
+  {# Summary Table #}
+  <table class="summary">
+    <thead>
+      <tr>
+        <th>IP</th>
+        <th>Hostname</th>
+        <th>Open Ports</th>
+        <th>Total Vulns</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for dev in devices %}
+      <tr data-ip="{{ dev.ip }}">
+        <td><a class="row-link" onclick="showDetail('{{ dev.ip }}')">{{ dev.ip }}</a></td>
+        <td>{{ dev.hostname or '—' }}</td>
+        <td>{{ dev.open_ports|length }}</td>
+        <td>{{ (dev.findings|length + dev.zap_alerts|length) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {# Detail Sections #}
+  {% for dev in devices %}
+  <div id="detail-{{ dev.ip }}" class="detail">
+    <h2>{{ dev.ip }} ({{ dev.hostname or 'N/A' }})</h2>
+    <p>
+      <strong>Status:</strong> {{ dev.status }} |
+      <strong>Uptime:</strong> {{ dev.uptime_seconds or 'Unknown' }} s |
+      <strong>Last Boot:</strong> {{ dev.last_boot or 'Unknown' }}
+    </p>
+
+    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('os-{{ dev.ip }}')">
+      OS Matches <span class="badge">{{ dev.os_matches|length }}</span>
+    </div>
+    <div id="os-{{ dev.ip }}" style="display:none;">
+      {% if dev.os_matches %}
+      <ul>
+      {% for os in dev.os_matches %}
+      <li>
+        <strong>{{ os.name }}</strong> ({{ os.accuracy }}%)<br>
+        {% for cls in os.osclasses %}
+        <small>{{ cls.type }} / {{ cls.vendor }} {{ cls.osfamily }} {{ cls.osgen or '' }}</small><br>
+        {% endfor %}
+      </li>
+      {% endfor %}
+      </ul>
+      {% else %}
+      <p>No OS match.</p>
+      {% endif %}
+    </div>
+
+    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('ports-{{ dev.ip }}')">
+      Open Ports <span class="badge">{{ dev.open_ports|length }}</span>
+    </div>
+    <div id="ports-{{ dev.ip }}" style="display:none;">
+    {% if dev.open_ports %}
+    <table class="inner">
+      <thead><tr><th>Port</th><th>State</th><th>Service</th><th>Product</th><th>Version</th><th>CPE</th></tr></thead>
+      <tbody>
+      {% for p in dev.open_ports %}
+      <tr>
+        <td>{{ p.port }}</td>
+        <td>{{ p.state }}</td>
+        <td>{{ p.service }}</td>
+        <td>{{ p.product or '—' }}</td>
+        <td>{{ p.version or '—' }}</td>
+        <td>{{ p.cpe or '—' }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>No open ports.</p>
+    {% endif %}
+    </div>
+
+    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('creds-{{ dev.ip }}')">
+      Credential Tests <span class="badge">{{ dev.findings|length }}</span>
+    </div>
+    <div id="creds-{{ dev.ip }}" style="display:none;">
+    {% if dev.findings %}
+    <table class="inner">
+      <thead>
+      <tr><th>Service</th><th>User</th><th>Pass</th></tr>
+      </thead>
+      <tbody>
+      {% for c in dev.findings %}
+      <tr>
+        <td>{{ c.service.value }}</td>
+        <td>{{ c.username }}</td>
+        <td>{{ c.password }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>No credentials succeeded.</p>
+    {% endif %}
+    </div>
+
+    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('zap-{{ dev.ip }}')">
+      ZAP Alerts <span class="badge">{{ dev.zap_alerts|length }}</span>
+    </div>
+    <div id="zap-{{ dev.ip }}" style="display:none;">
+    {% if dev.zap_alerts %}
+    <table class="inner">
+      <thead><tr><th>Alert</th><th>Risk</th><th>URL</th><th>Param</th></tr></thead>
+      <tbody>
+      {% for a in dev.zap_alerts %}
+      <tr>
+        <td>{{ a.alert }}</td>
+        <td><span class="badge {{ 'danger' if a.risk=='High' else 'warn' }}">{{ a.risk }}</span></td>
+        <td>{{ a.url }}</td>
+        <td>{{ a.parameter or '—' }}</td>
+      </tr>
+      <tr>
+        <td colspan="4">
+        <details>
+          <summary>Details</summary>
+          <p><strong>Confidence:</strong> {{ a.confidence }}</p>
+          <p><strong>CWE/WASC:</strong> {{ a.cwe or '—' }} / {{ a.wasc or '—' }}</p>
+          <p><strong>Method:</strong> {{ a.method or '—' }}</p>
+          <p><strong>Evidence:</strong> {{ a.evidence or '—' }}</p>
+          <p><strong>Description:</strong> {{ a.description or '—' }}</p>
+          <p><strong>Solution:</strong> {{ a.solution or '—' }}</p>
+        </details>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>No ZAP alerts.</p>
+    {% endif %}
+    </div>
+    </div>
+    {% endfor %}
+
+  <script>
+    function showDetail(ip) {
+      document.querySelectorAll('.detail').forEach(d => d.classList.remove('active'));
+      document.getElementById('detail-' + ip).classList.add('active');
+      window.scrollTo({ top: document.getElementById('detail-' + ip).offsetTop - 20, behavior: 'smooth' });
+    }
+  </script>
+
+  <script>
+    function toggleSection(id) {
+      var el = document.getElementById(id);
+      if (el.style.display === "none" || el.style.display === "") {
+        el.style.display = "block";
+      } else {
+        el.style.display = "none";
+      }
+    }
+</script>
 </body>
 </html>
