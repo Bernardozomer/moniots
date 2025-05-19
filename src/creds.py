@@ -33,32 +33,42 @@ def batch_test_common_credentials(devices):
 
 def test_common_credentials(ip, creds, timeout_seconds=5):
     """Test common credentials against a device."""
-    findings = []
+    alerts = []
 
-    # SSH.
-    for user, pwd in creds:
-        try:
-            ssh = paramiko.SSHClient()
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(ip, username=user, password=pwd, timeout=timeout_seconds)
-            ssh.close()
-            findings.append(
-                models.CommonCredentialsFinding(ip, models.Service.SSH, user, pwd)
-            )
-        except Exception:
-            continue
+    def check_and_alert(service, connect_func):
+        for user, pwd in creds:
+            try:
+                if connect_func(user, pwd):
+                    alerts.append(
+                        models.CommonCredentialsAlert(
+                            source=models.AlertSource.CREDENTIALS,
+                            severity=models.Severity.HIGH,
+                            title=f"Common {service} Credentials",
+                            description=f"Device is using easily guessable {service} credentials.",
+                            cwe_id=1931,
+                            remediation="Change device credentials.",
+                            service=getattr(models.Service, service),
+                            username=user,
+                            password=pwd,
+                        )
+                    )
+            except Exception:
+                continue
 
-    # HTTP.
-    for user, pwd in creds:
-        try:
-            s = requests.Session()
-            payload = {"username": user, "password": pwd}
-            r = s.post(f"http://{ip}/login", data=payload, timeout=timeout_seconds)
-            if r.status_code == 200:
-                findings.append(
-                    models.CommonCredentialsFinding(ip, models.Service.HTTP, user, pwd)
-                )
-        except Exception:
-            continue
+    def ssh_connect(user, pwd):
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(ip, username=user, password=pwd, timeout=timeout_seconds)
+        ssh.close()
+        return True
 
-    return findings
+    def http_connect(user, pwd):
+        s = requests.Session()
+        payload = {"username": user, "password": pwd}
+        r = s.post(f"http://{ip}/login", data=payload, timeout=timeout_seconds)
+        return r.status_code == 200
+
+    check_and_alert("SSH", ssh_connect)
+    check_and_alert("HTTP", http_connect)
+
+    return alerts

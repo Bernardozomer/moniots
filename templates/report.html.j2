@@ -118,6 +118,7 @@
       font-weight: 600;
       border-bottom: 2px solid var(--clr-surface-tonal-a10);
       color: var(--clr-surface-a50);
+      cursor: pointer;
     }
 
     table.inner {
@@ -128,6 +129,7 @@
     table.inner th, table.inner td {
       padding: 0.5rem;
       border: 1px solid var(--clr-surface-tonal-a20);
+      vertical-align: top;
     }
     table.inner th {
       background: var(--clr-surface-a0);
@@ -149,7 +151,7 @@
 <body>
   <h1>🕵️ Moniots IoT Cybersecurity Report</h1>
   <div class="subtitle">
-    {{ devices|length }} devices found on {{ network }} at {{ now }}
+    {{ results|length }} devices found on {{ network }} at {{ now }}
   </div>
 
   {# Summary Table #}
@@ -159,137 +161,139 @@
         <th>IP</th>
         <th>Hostname</th>
         <th>Open Ports</th>
-        <th>Total Vulns</th>
+        <th>Total Alerts</th>
       </tr>
     </thead>
     <tbody>
-      {% for dev in devices %}
-      <tr data-ip="{{ dev.ip }}">
-        <td><a class="row-link" onclick="showDetail('{{ dev.ip }}')">{{ dev.ip }}</a></td>
-        <td>{{ dev.hostname or '—' }}</td>
-        <td>{{ dev.open_ports|length }}</td>
-        <td>{{ (dev.findings|length + dev.zap_alerts|length) }}</td>
+      {% for entry in results %}
+      {% set d = entry.device %}
+      <tr data-ip="{{ d.ip }}">
+        <td><a class="row-link" onclick="showDetail('{{ d.ip }}')">{{ d.ip }}</a></td>
+        <td>{{ d.hostname or '—' }}</td>
+        <td>{{ d.open_ports|length }}</td>
+        <td>{{ entry.alerts|length }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 
   {# Detail Sections #}
-  {% for dev in devices %}
-  <div id="detail-{{ dev.ip }}" class="detail">
-    <h2>{{ dev.ip }} ({{ dev.hostname or 'N/A' }})</h2>
+  {% for entry in results %}
+  {% set d = entry.device %}
+  <div id="detail-{{ d.ip }}" class="detail">
+    <h2>{{ d.ip }} ({{ d.hostname or 'N/A' }})</h2>
     <p>
-      <strong>Status:</strong> {{ dev.status }} |
-      <strong>Uptime:</strong> {{ dev.uptime_seconds or 'Unknown' }} s |
-      <strong>Last Boot:</strong> {{ dev.last_boot or 'Unknown' }}
+      <strong>Status:</strong> {{ d.status }} |
+      <strong>Uptime:</strong> {{ d.uptime_seconds or 'Unknown' }} s |
+      <strong>Last Boot:</strong> {{ d.last_boot or 'Unknown' }}
     </p>
 
-    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('os-{{ dev.ip }}')">
-      OS Matches <span class="badge">{{ dev.os_matches|length }}</span>
+    <div class="section-title" onclick="toggleSection('os-{{ d.ip }}')">
+      OS Matches <span class="badge">{{ d.os_matches|length }}</span>
     </div>
-    <div id="os-{{ dev.ip }}" style="display:none;">
-      {% if dev.os_matches %}
-      <ul>
-      {% for os in dev.os_matches %}
-      <li>
-        <strong>{{ os.name }}</strong> ({{ os.accuracy }}%)<br>
-        {% for cls in os.osclasses %}
-        <small>{{ cls.type }} / {{ cls.vendor }} {{ cls.osfamily }} {{ cls.osgen or '' }}</small><br>
-        {% endfor %}
-      </li>
-      {% endfor %}
-      </ul>
+    <div id="os-{{ d.ip }}" style="display:none;">
+      {% if d.os_matches %}
+        <ul>
+          {% for os in d.os_matches %}
+          <li>
+            <strong>{{ os.name }}</strong> ({{ os.accuracy }}%)<br>
+            {% for cls in os.osclasses %}
+            <small>{{ cls.type }} / {{ cls.vendor }} {{ cls.osfamily }} {{ cls.osgen or '' }}</small><br>
+            {% endfor %}
+          </li>
+          {% endfor %}
+        </ul>
       {% else %}
-      <p>No OS match.</p>
+        <p>No OS match.</p>
       {% endif %}
     </div>
 
-    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('ports-{{ dev.ip }}')">
-      Open Ports <span class="badge">{{ dev.open_ports|length }}</span>
+    <div class="section-title" onclick="toggleSection('ports-{{ d.ip }}')">
+      Open Ports <span class="badge">{{ d.open_ports|length }}</span>
     </div>
-    <div id="ports-{{ dev.ip }}" style="display:none;">
-    {% if dev.open_ports %}
-    <table class="inner">
-      <thead><tr><th>Port</th><th>State</th><th>Service</th><th>Product</th><th>Version</th><th>CPE</th></tr></thead>
-      <tbody>
-      {% for p in dev.open_ports %}
-      <tr>
-        <td>{{ p.port }}</td>
-        <td>{{ p.state }}</td>
-        <td>{{ p.service }}</td>
-        <td>{{ p.product or '—' }}</td>
-        <td>{{ p.version or '—' }}</td>
-        <td>{{ p.cpe or '—' }}</td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-      <p>No open ports.</p>
-    {% endif %}
-    </div>
-
-    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('creds-{{ dev.ip }}')">
-      Credential Tests <span class="badge">{{ dev.findings|length }}</span>
-    </div>
-    <div id="creds-{{ dev.ip }}" style="display:none;">
-    {% if dev.findings %}
-    <table class="inner">
-      <thead>
-      <tr><th>Service</th><th>User</th><th>Pass</th></tr>
-      </thead>
-      <tbody>
-      {% for c in dev.findings %}
-      <tr>
-        <td>{{ c.service.value }}</td>
-        <td>{{ c.username }}</td>
-        <td>{{ c.password }}</td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-      <p>No credentials succeeded.</p>
-    {% endif %}
+    <div id="ports-{{ d.ip }}" style="display:none;">
+      {% if d.open_ports %}
+      <table class="inner">
+        <thead>
+          <tr><th>Port</th><th>State</th><th>Service</th><th>Product</th><th>Version</th><th>CPE</th></tr>
+        </thead>
+        <tbody>
+          {% for p in d.open_ports %}
+          <tr>
+            <td>{{ p.port }}</td>
+            <td>{{ p.state }}</td>
+            <td>{{ p.service }}</td>
+            <td>{{ p.product or '—' }}</td>
+            <td>{{ p.version or '—' }}</td>
+            <td>{{ p.cpe or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p>No open ports.</p>
+      {% endif %}
     </div>
 
-    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('zap-{{ dev.ip }}')">
-      ZAP Alerts <span class="badge">{{ dev.zap_alerts|length }}</span>
+    {# Unified Alerts Section #}
+    <div class="section-title" onclick="toggleSection('alerts-{{ d.ip }}')">
+      Alerts <span class="badge">{{ entry.alerts|length }}</span>
     </div>
-    <div id="zap-{{ dev.ip }}" style="display:none;">
-    {% if dev.zap_alerts %}
-    <table class="inner">
-      <thead><tr><th>Alert</th><th>Risk</th><th>URL</th><th>Param</th></tr></thead>
-      <tbody>
-      {% for a in dev.zap_alerts %}
-      <tr>
-        <td>{{ a.alert }}</td>
-        <td><span class="badge {{ 'danger' if a.risk=='High' else 'warn' }}">{{ a.risk }}</span></td>
-        <td>{{ a.url }}</td>
-        <td>{{ a.parameter or '—' }}</td>
-      </tr>
-      <tr>
-        <td colspan="4">
-        <details>
-          <summary>Details</summary>
-          <p><strong>Confidence:</strong> {{ a.confidence }}</p>
-          <p><strong>CWE/WASC:</strong> {{ a.cwe or '—' }} / {{ a.wasc or '—' }}</p>
-          <p><strong>Method:</strong> {{ a.method or '—' }}</p>
-          <p><strong>Evidence:</strong> {{ a.evidence or '—' }}</p>
-          <p><strong>Description:</strong> {{ a.description or '—' }}</p>
-          <p><strong>Solution:</strong> {{ a.solution or '—' }}</p>
-        </details>
-        </td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-      <p>No ZAP alerts.</p>
-    {% endif %}
+    <div id="alerts-{{ d.ip }}" style="display:none;">
+      {% if entry.alerts %}
+      <table class="inner">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Detail</th>
+            <th>Risk</th>
+            <th>URL / Service</th>
+            <th>Parameter / Credentials</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in entry.alerts %}
+          <tr>
+            {% if a.service is defined %}
+              <td>Credential</td>
+              <td>{{ a.service.value }}</td>
+              <td>—</td>
+              <td>—</td>
+              <td>{{ a.username }} / {{ a.password }}</td>
+            {% else %}
+              <td>ZAP</td>
+              <td>{{ a.alert }}</td>
+              <td>{{ a.risk }}</td>
+              <td>{{ a.url }}</td>
+              <td>{{ a.parameter or '—' }}</td>
+            {% endif %}
+          </tr>
+          <tr>
+            <td colspan="5">
+              <details>
+                <summary>More info</summary>
+                {% if not a.service is defined %}
+                  <p><strong>Confidence:</strong> {{ a.confidence }}</p>
+                  <p><strong>CWE/WASC:</strong> {{ a.cwe or '—' }} / {{ a.wasc or '—' }}</p>
+                  <p><strong>Method:</strong> {{ a.method or '—' }}</p>
+                  <p><strong>Evidence:</strong> {{ a.evidence or '—' }}</p>
+                  <p><strong>Description:</strong> {{ a.description or '—' }}</p>
+                  <p><strong>Solution:</strong> {{ a.solution or '—' }}</p>
+                {% else %}
+                  <p>(No further detail for credential findings.)</p>
+                {% endif %}
+              </details>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p>No alerts.</p>
+      {% endif %}
     </div>
-    </div>
-    {% endfor %}
+  </div>
+  {% endfor %}
 
   <script>
     function showDetail(ip) {
@@ -297,17 +301,10 @@
       document.getElementById('detail-' + ip).classList.add('active');
       window.scrollTo({ top: document.getElementById('detail-' + ip).offsetTop - 20, behavior: 'smooth' });
     }
-  </script>
-
-  <script>
     function toggleSection(id) {
       var el = document.getElementById(id);
-      if (el.style.display === "none" || el.style.display === "") {
-        el.style.display = "block";
-      } else {
-        el.style.display = "none";
-      }
+      el.style.display = (el.style.display === "block") ? "none" : "block";
     }
-</script>
+  </script>
 </body>
 </html>

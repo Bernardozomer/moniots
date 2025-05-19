@@ -26,10 +26,6 @@ def scan_web_apps(devices, zap_api_key, local_zap_proxy):
         # Perform the active scan.
         run_scan(zap.ascan.scan, zap.ascan.status, url, recurse=True, postdata=True)
 
-        # TODO: Remove HTML output.
-        with open(f"zap_{ip}.html", "w", encoding="utf-8") as f:
-            f.write(zap.core.htmlreport())
-
         # Parse and store results.
         alerts[device] = parse_zap_alerts(zap.core.alerts(baseurl=url))
 
@@ -51,17 +47,17 @@ def parse_zap_alerts(zap_alerts):
     """Parse ZAP alerts for processing."""
     return [
         models.ZAPAlert(
-            alert=a.get("name", "Unknown Alert"),
-            risk=a.get("risk", "Unknown"),
-            confidence=a.get("confidence", "Unknown"),
-            cwe=a.get("cweid", ""),
-            wasc=a.get("wascid", ""),
-            url=a.get("url") or a.get("uri", ""),
+            source=models.AlertSource.ZAP,
+            severity=models.Severity(a["risk"]),
+            title=a.get("name", "Untitled"),
+            description=a.get("description", "No description"),
+            cwe_id=a["cweid"],
+            remediation=a.get("solution", None),
+            url=a["url"] or a["uri"],
+            method=a["method"],
             parameter=a.get("param"),
-            method=a.get("method"),
             evidence=a.get("evidence"),
-            description=a.get("description"),
-            solution=a.get("solution"),
+            confidence=models.Confidence(a["confidence"]),
         )
         for a in zap_alerts
     ]
