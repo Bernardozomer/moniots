@@ -24,7 +24,7 @@ def parse_device_info(hosts):
         last_boot = host.get("uptime", {}).get("lastboot")
 
         # Ports
-        open_ports = [
+        open_ports: list[models.PortInfo] = [
             models.PortInfo(
                 port=port,
                 state=details.get("state", ""),
@@ -37,7 +37,7 @@ def parse_device_info(hosts):
         ]
 
         # OS matches
-        os_matches = []
+        os_matches: list[models.OSMatch] = []
         for match in host.get("osmatch", []):
             osclasses = [
                 models.OSClass(
@@ -66,8 +66,8 @@ def parse_device_info(hosts):
                 status=status,
                 uptime_seconds=uptime_seconds,
                 last_boot=last_boot,
-                open_ports=open_ports,
-                os_matches=os_matches,
+                open_ports=tuple(open_ports),
+                os_matches=tuple(os_matches),
             )
         )
 

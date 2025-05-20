@@ -10,24 +10,20 @@ REPORT_TEMPLATE = f"{TEMPLATE_DIR}/report.html.j2"
 
 
 def generate_json_report(results):
-    ser_res = serialize_results(results)
-    return json.dumps(ser_res, indent=2)
+    results = results_to_dict(results)
+    return json.dumps(results, indent=2)
 
 
 def generate_html_report(results, network, now):
     env = Environment(loader=FileSystemLoader("."), extensions=["jinja2.ext.do"])
     tmpl = env.get_template(REPORT_TEMPLATE)
-    devices = serialize_results(results)
+    results = results_to_dict(results)
     formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
-    return tmpl.render(devices=devices, network=network, now=formatted_now)
+    return tmpl.render(results=results, network=network, now=formatted_now)
 
 
-def serialize_results(results):
-    ser = []
-
-    for device, sections in results.items():
-        entry = asdict(device)  # all the Device fields
-        entry["credentials"] = [asdict(f) for f in sections["credentials"]]
-        entry["zap_alerts"] = [asdict(z) for z in sections["zap_alerts"]]
-        ser.append(entry)
-    return ser
+def results_to_dict(results):
+    return [
+        {"device": asdict(d), "alerts": [asdict(a) for a in alerts]}
+        for d, alerts in results.items()
+    ]

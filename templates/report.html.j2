@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Moniots IoT Cybersecurity Report</title>
+  <title>🕵️ Moniots IoT Cybersecurity Report</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -38,80 +38,36 @@
       --clr-surface-tonal-a40: #84807d;
       --clr-surface-tonal-a50: #9c9895;
     }
-
     html, body {
-      margin: 0; padding: 0;
+      margin:0; padding:0;
       font-family: 'IBM Plex Sans', sans-serif;
       background: var(--clr-surface-a0);
       color: var(--clr-light-a0);
-      line-height: 1.5;
     }
-
     body {
-      max-width: 960px;
-      margin: 2rem auto; padding: 0 1rem;
+      max-width:960px; margin:2rem auto; padding:0 1rem;
+      line-height:1.5;
     }
+    h1 { font-size:2rem; font-weight:600; color:var(--clr-primary-a0); margin-bottom:0.5rem; }
+    .subtitle { color:var(--clr-surface-tonal-a10); margin-bottom:2rem; font-size:0.9rem; }
 
-    h1 {
-      font-size: 2rem; font-weight: 600;
-      color: var(--clr-primary-a0);
-      margin-bottom: 0.5rem;
-    }
-
-    .subtitle {
-      color: var(--clr-surface-a40);
-      margin-bottom: 2rem;
-      font-size: 0.9rem;
-    }
-
-    /* Summary table */
-    table.summary {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 2rem;
-    }
+    /* summary table */
+    table.summary { width:100%; border-collapse:collapse; margin-bottom:2rem; }
     table.summary th, table.summary td {
-      padding: 0.75rem 1rem;
-      text-align: left;
-      border-bottom: 1px solid var(--clr-surface-tonal-a10);
+      padding:0.75rem 1rem; text-align:left; border-bottom:1px solid var(--clr-surface-tonal-a20);
     }
-    table.summary th {
-      background: var(--clr-primary-a0);
-      color: var(--clr-light-a0);
-      font-weight: 600;
-    }
-    table.summary tr:hover {
-      background: var(--clr-primary-a10);
-      cursor: pointer;
-    }
-    a.row-link {
-      color: inherit;
-      text-decoration: none;
-      display: block;
-      width: 100%;
-    }
+    table.summary th { background:var(--clr-primary-a0); color:var(--clr-light-a0); font-weight:600; }
+    table.summary tr:hover { background:var(--clr-primary-a10); cursor:pointer; }
+    a.row-link { color:inherit; text-decoration:none; display:block; width:100%; }
 
-    /* Detail cards */
-    .detail {
-      display: none;
-      background: var(--clr-surface-a10);
-      border: 1px solid var(--clr-surface-tonal-a20);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    }
-    .detail.active { display: block; }
+    /* detail panel */
+    .detail { display:none; background:var(--clr-surface-a10); border:1px solid var(--clr-surface-tonal-a20);
+              border-radius:8px; padding:1.5rem; margin-bottom:2rem; }
+    .detail.active { display:block; }
+    .detail h2 { font-family:'IBM Plex Mono', monospace; margin-top:0; }
+    .detail p { margin:0.5rem 0; }
 
-    .detail h2 {
-      font-family: 'IBM Plex Mono', monospace;
-      color: var(--clr-light-a0);
-      margin-top: 0;
-    }
-    .detail p {
-      margin: 0.5rem 0;
-    }
-
+    /* section headers */
     .section-title {
       margin-top: 1.5rem;
       margin-bottom: 0.5rem;
@@ -120,77 +76,94 @@
       color: var(--clr-surface-a50);
     }
 
-    table.inner {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 0.5rem;
-    }
+    /* inner tables */
+    table.inner { width:100%; border-collapse:collapse; margin-top:0.5rem; }
     table.inner th, table.inner td {
-      padding: 0.5rem;
-      border: 1px solid var(--clr-surface-tonal-a20);
+      padding:0.5rem; border:1px solid var(--clr-surface-tonal-a20); vertical-align:top;
     }
-    table.inner th {
-      background: var(--clr-surface-a0);
-      color: var(--clr-light-a0);
-      font-weight: 600;
+    table.inner th { background:var(--clr-surface-a0); color:var(--clr-light-a0); font-weight:600; }
+
+    /* alerts area */
+    .alerts-toolbar {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-top:1rem; margin-bottom:0.5rem;
+    }
+    .tabs {
+      display:flex; gap:0.5rem;
+    }
+    .tabs button {
+      background:var(--clr-surface-a10); color:var(--clr-light-a0); border:none;
+      padding:0.4rem 0.8rem; border-radius:4px; cursor:pointer; position:relative;
+    }
+    .tabs button.active { background:var(--clr-primary-a0); }
+    .tabs button .badge { margin-left:0.3rem; }
+
+    .alerts-search input {
+      background:var(--clr-surface-a10); border:1px solid var(--clr-surface-tonal-a20);
+      color:var(--clr-light-a0); padding:0.4rem 0.8rem; border-radius:4px;
+      width:200px;
     }
 
+    .accordion-item { border-bottom:1px solid var(--clr-surface-tonal-a20); }
+    .accordion-header {
+      padding:0.6rem 0.8rem; display:flex; align-items:center; justify-content:space-between;
+      cursor:pointer; user-select:none;
+    }
+    .accordion-header:hover { background:var(--clr-surface-tonal-a20); }
+    .accordion-header .arrow {
+      width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent;
+      border-top:6px solid var(--clr-light-a0); margin-right:0.8rem; transition:transform 0.2s;
+    }
+    .accordion-header.open .arrow { transform:rotate(180deg); }
+
+    .accordion-content { display:none; padding:0.5rem 1.6rem 1rem; }
+    .accordion-content p { margin:0.4rem 0; }
+
     .badge {
-      display: inline-block;
-      background: var(--clr-primary-a0);
-      color: var(--clr-light-a0);
-      padding: 0.2em 0.5em;
-      border-radius: 999px;
-      font-size: 0.8em;
-      vertical-align: middle;
+      display:inline-block; background:var(--clr-primary-a0); color:var(--clr-light-a0);
+      padding:0.2em 0.5em; border-radius:999px; font-size:0.8em;
+      vertical-align:middle;
     }
   </style>
 </head>
 <body>
   <h1>🕵️ Moniots IoT Cybersecurity Report</h1>
-  <div class="subtitle">
-    {{ devices|length }} devices found on {{ network }} at {{ now }}
-  </div>
+  <div class="subtitle">{{ results|length }} devices on {{ network }} at {{ now }}</div>
 
-  {# Summary Table #}
+  {# SUMMARY #}
   <table class="summary">
     <thead>
-      <tr>
-        <th>IP</th>
-        <th>Hostname</th>
-        <th>Open Ports</th>
-        <th>Total Vulns</th>
-      </tr>
+      <tr><th>IP</th><th>Hostname</th><th>Open Ports</th><th>Alerts</th></tr>
     </thead>
     <tbody>
-      {% for dev in devices %}
-      <tr data-ip="{{ dev.ip }}">
-        <td><a class="row-link" onclick="showDetail('{{ dev.ip }}')">{{ dev.ip }}</a></td>
-        <td>{{ dev.hostname or '—' }}</td>
-        <td>{{ dev.open_ports|length }}</td>
-        <td>{{ (dev.findings|length + dev.zap_alerts|length) }}</td>
+      {% for entry in results %}
+      {% set d = entry.device %}
+      <tr data-ip="{{ d.ip }}" onclick="showDetail('{{ d.ip }}')">
+        <td>{{ d.ip }}</td>
+        <td>{{ d.hostname or '—' }}</td>
+        <td>{{ d.open_ports|length }}</td>
+        <td>{{ entry.alerts|length }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 
-  {# Detail Sections #}
-  {% for dev in devices %}
-  <div id="detail-{{ dev.ip }}" class="detail">
-    <h2>{{ dev.ip }} ({{ dev.hostname or 'N/A' }})</h2>
-    <p>
-      <strong>Status:</strong> {{ dev.status }} |
-      <strong>Uptime:</strong> {{ dev.uptime_seconds or 'Unknown' }} s |
-      <strong>Last Boot:</strong> {{ dev.last_boot or 'Unknown' }}
-    </p>
+  {# DETAILS #}
+  {% for entry in results %}
+  {% set d = entry.device %}
+  <div id="detail-{{ d.ip }}" class="detail">
+    <h2>{{ d.ip }} ({{ d.hostname or 'N/A' }})</h2>
+    <p><strong>Status:</strong> {{ d.status }} |
+       <strong>Uptime:</strong> {{ d.uptime_seconds or 'Unknown' }} s |
+       <strong>Last Boot:</strong> {{ d.last_boot or 'Unknown' }}</p>
 
-    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('os-{{ dev.ip }}')">
-      OS Matches <span class="badge">{{ dev.os_matches|length }}</span>
+    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('os-{{ d.ip }}')">
+      OS Matches <span class="badge">{{ d.os_matches|length }}</span>
     </div>
-    <div id="os-{{ dev.ip }}" style="display:none;">
-      {% if dev.os_matches %}
+    <div id="os-{{ d.ip }}">
+      {% if d.os_matches %}
       <ul>
-      {% for os in dev.os_matches %}
+      {% for os in d.os_matches %}
       <li>
         <strong>{{ os.name }}</strong> ({{ os.accuracy }}%)<br>
         {% for cls in os.osclasses %}
@@ -203,16 +176,16 @@
       <p>No OS match.</p>
       {% endif %}
     </div>
-
-    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('ports-{{ dev.ip }}')">
-      Open Ports <span class="badge">{{ dev.open_ports|length }}</span>
+    
+    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('ports-{{ d.ip }}')">
+      Open Ports <span class="badge">{{ d.open_ports|length }}</span>
     </div>
-    <div id="ports-{{ dev.ip }}" style="display:none;">
-    {% if dev.open_ports %}
+    <div id="ports-{{ d.ip }}">
+    {% if d.open_ports %}
     <table class="inner">
       <thead><tr><th>Port</th><th>State</th><th>Service</th><th>Product</th><th>Version</th><th>CPE</th></tr></thead>
       <tbody>
-      {% for p in dev.open_ports %}
+      {% for p in d.open_ports %}
       <tr>
         <td>{{ p.port }}</td>
         <td>{{ p.state }}</td>
@@ -229,77 +202,108 @@
     {% endif %}
     </div>
 
-    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('creds-{{ dev.ip }}')">
-      Credential Tests <span class="badge">{{ dev.findings|length }}</span>
+    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('alerts-{{ d.ip }}')">
+      Alerts <span class="badge">{{ entry.alerts|length }}</span>
     </div>
-    <div id="creds-{{ dev.ip }}" style="display:none;">
-    {% if dev.findings %}
-    <table class="inner">
-      <thead>
-      <tr><th>Service</th><th>User</th><th>Pass</th></tr>
-      </thead>
-      <tbody>
-      {% for c in dev.findings %}
-      <tr>
-        <td>{{ c.service.value }}</td>
-        <td>{{ c.username }}</td>
-        <td>{{ c.password }}</td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-      <p>No credentials succeeded.</p>
-    {% endif %}
+    <div class="alerts-toolbar">
+      <div class="tabs" id="tabs-{{ d.ip }}">
+        {% set sev_counts = {'All': entry.alerts|length, 
+                 'High': entry.alerts|selectattr('severity.value','equalto','High')|list|length,
+                 'Medium': entry.alerts|selectattr('severity.value','equalto','Medium')|list|length,
+                 'Low': entry.alerts|selectattr('severity.value','equalto','Low')|list|length,
+                 'Informational': entry.alerts|selectattr('severity.value','equalto','Informational')|list|length } %}
+        {% for sev, cnt in sev_counts.items() %}
+        <button class="{{ 'active' if loop.first else '' }}" data-sev="{{ sev }}">{{ sev }}<span class="badge">{{ cnt }}</span></button>
+        {% endfor %}
+      </div>
+      <div class="alerts-search">
+        <input type="text" placeholder="Search alerts…" oninput="filterAlerts('{{ d.ip }}', this.value)">
+      </div>
     </div>
 
-    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('zap-{{ dev.ip }}')">
-      ZAP Alerts <span class="badge">{{ dev.zap_alerts|length }}</span>
-    </div>
-    <div id="zap-{{ dev.ip }}" style="display:none;">
-    {% if dev.zap_alerts %}
-    <table class="inner">
-      <thead><tr><th>Alert</th><th>Risk</th><th>URL</th><th>Param</th></tr></thead>
-      <tbody>
-      {% for a in dev.zap_alerts %}
-      <tr>
-        <td>{{ a.alert }}</td>
-        <td><span class="badge {{ 'danger' if a.risk=='High' else 'warn' }}">{{ a.risk }}</span></td>
-        <td>{{ a.url }}</td>
-        <td>{{ a.parameter or '—' }}</td>
-      </tr>
-      <tr>
-        <td colspan="4">
-        <details>
-          <summary>Details</summary>
-          <p><strong>Confidence:</strong> {{ a.confidence }}</p>
-          <p><strong>CWE/WASC:</strong> {{ a.cwe or '—' }} / {{ a.wasc or '—' }}</p>
-          <p><strong>Method:</strong> {{ a.method or '—' }}</p>
-          <p><strong>Evidence:</strong> {{ a.evidence or '—' }}</p>
-          <p><strong>Description:</strong> {{ a.description or '—' }}</p>
-          <p><strong>Solution:</strong> {{ a.solution or '—' }}</p>
-        </details>
-        </td>
-      </tr>
+    {# Accordion list #}
+    <div id="alerts-{{ d.ip }}">
+      {% for a in entry.alerts|sort(attribute='severity')|sort(attribute='alert') %}
+      <div class="accordion-item" data-severity="{{ a.severity.value }}">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <div style="display:flex; align-items:center;">
+            <div class="arrow"></div>
+            <strong>{{ a.title }}</strong>
+            <span class="badge">{{ a.severity.value }}</span>
+            {% if a.cwe_id %}
+              <span class="badge">CWE-{{ a.cwe_id }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="accordion-content">
+          {% if a.service is defined %}
+            <p><strong>Service:</strong> {{ a.service.value }}</p>
+            <p><strong>Username:</strong> {{ a.username }}</p>
+            <p><strong>Password:</strong> {{ a.password }}</p>
+          {% else %}
+            <p><strong>URL:</strong> {{ a.url }}</p>
+            <p><strong>Parameter:</strong> {{ a.parameter or '—' }}</p>
+            <p><strong>Confidence:</strong> {{ a.confidence }}</p>
+            <p><strong>WASC:</strong> {{ a.wasc or '—' }}</p>
+            <p><strong>Method:</strong> {{ a.method or '—' }}</p>
+            <p><strong>Evidence:</strong> {{ a.evidence or '—' }}</p>
+            <p><strong>Description:</strong> {{ a.description or '—' }}</p>
+            <p><strong>Solution:</strong> {{ a.solution or '—' }}</p>
+          {% endif %}
+        </div>
+      </div>
       {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-      <p>No ZAP alerts.</p>
-    {% endif %}
     </div>
-    </div>
-    {% endfor %}
+  </div>
+  {% endfor %}
 
   <script>
     function showDetail(ip) {
-      document.querySelectorAll('.detail').forEach(d => d.classList.remove('active'));
-      document.getElementById('detail-' + ip).classList.add('active');
-      window.scrollTo({ top: document.getElementById('detail-' + ip).offsetTop - 20, behavior: 'smooth' });
+      document.querySelectorAll('.detail').forEach(d=>d.classList.remove('active'));
+      document.getElementById('detail-'+ip).classList.add('active');
+      window.scrollTo({ top: document.getElementById('detail-'+ip).offsetTop-20, behavior:'smooth' });
     }
-  </script>
 
-  <script>
+    function toggleAccordion(header) {
+      const arrow = header.querySelector('.arrow');
+      const content = header.nextElementSibling;
+      const open = header.classList.toggle('open');
+      content.style.display = open ? 'block' : 'none';
+    }
+
+    /* Tab switching */
+    document.querySelectorAll('[id^="tabs-"] button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const toolbar = btn.closest('.alerts-toolbar');
+        const ip = toolbar.closest('.detail').id.replace('detail-','');
+        const tabs   = toolbar.querySelector('.tabs');
+        const search = toolbar.querySelector('input').value.trim().toLowerCase();
+
+        // 1) activate the clicked tab
+        tabs.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // 2) re‐filter all the accordion items
+        filterAlerts(ip, search);
+      });
+    });
+
+    /* Search filtering */
+    function filterAlerts(ip, text) {
+      const container = document.getElementById('alerts-'+ip);
+      const lc = text.toLowerCase();
+      // find which severity is selected
+      const tabs = document.getElementById('tabs-'+ip);
+      const activeTab = tabs.querySelector('button.active').dataset.sev;
+
+      container.querySelectorAll('.accordion-item').forEach(item => {
+        const sevMatch = activeTab === 'All' || item.dataset.severity === activeTab;
+        const txtMatch = item.innerText.toLowerCase().includes(lc);
+        item.style.display = (sevMatch && txtMatch) ? '' : 'none';
+      });
+    }
+    
+    /* Section toggling */
     function toggleSection(id) {
       var el = document.getElementById(id);
       if (el.style.display === "none" || el.style.display === "") {
@@ -308,6 +312,6 @@
         el.style.display = "none";
       }
     }
-</script>
+  </script>
 </body>
 </html>

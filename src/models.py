@@ -4,16 +4,6 @@ from typing import Optional
 
 
 @dataclass(frozen=True)
-class PortInfo:
-    port: int
-    state: str
-    service: str
-    product: str
-    version: str
-    cpe: str
-
-
-@dataclass(frozen=True)
 class OSClass:
     type: str
     vendor: str
@@ -41,6 +31,16 @@ class OSMatch:
 
 
 @dataclass(frozen=True)
+class PortInfo:
+    port: int
+    state: str
+    service: str
+    product: str
+    version: str
+    cpe: str
+
+
+@dataclass(frozen=True)
 class Device:
     ip: str
     hostname: Optional[str]
@@ -54,31 +54,56 @@ class Device:
         return hash(self.ip)
 
 
-@dataclass
-class CommonCredentialsFinding:
-    """Dataclass to hold common credentials findings."""
-
-    ip: str
-    service: "Service"
-    username: str
-    password: str
-
-
 class Service(Enum):
     SSH = "SSH"
     HTTP = "HTTP"
 
 
-@dataclass(frozen=True)
-class ZAPAlert:
-    alert: str
-    risk: str
-    confidence: str
-    cwe: str
-    wasc: str
+class Severity(Enum):
+    INFO = "Informational"
+    LOW = "Low"
+    MEDIUM = "Medium"
+    HIGH = "High"
+
+    def __lt__(self, other):
+        if not isinstance(other, Severity):
+            return NotImplemented
+        order = [Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH]
+        return order.index(self) < order.index(other)
+
+
+class AlertSource(Enum):
+    CREDENTIALS = "Moniots"
+    ZAP = "OWASP Zap"
+
+
+class Confidence(Enum):
+    LOW = "Low"
+    MEDIUM = "Medium"
+    HIGH = "High"
+
+
+@dataclass
+class Alert:
+    source: AlertSource
+    severity: Severity
+    title: str
+    description: str
+    cwe_id: int
+    remediation: Optional[str]
+
+
+@dataclass
+class CommonCredentialsAlert(Alert):
+    service: Service
+    username: str
+    password: str
+
+
+@dataclass
+class ZAPAlert(Alert):
     url: str
+    method: str
     parameter: Optional[str]
-    method: Optional[str]
     evidence: Optional[str]
-    description: Optional[str]
-    solution: Optional[str]
+    confidence: Confidence

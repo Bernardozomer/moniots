@@ -18,7 +18,7 @@ def main():
     devices = discovery.parse_device_info(scanned_hosts)
 
     # Run tests.
-    common_creds = creds.batch_test_common_credentials(devices)
+    cred_alerts = creds.batch_test_common_credentials(devices)
 
     # Scan for web application vulnerabilities.
     # TODO: Exclude zaproxy from itself?
@@ -30,22 +30,17 @@ def main():
         http_devices, args.zap_api_key, args.local_zap_proxy
     )
 
-    # Merge the common crdential results with the ZAP alerts.
-    merged_results = {}
-    for device, cred_findings in common_creds.items():
-        merged_results[device] = {
-            "credentials": cred_findings,
-            "zap_alerts": zap_alerts.get(device, []),
-        }
+    # Merge alert results.
+    results = {d: cred_alerts.get(d, []) + zap_alerts.get(d, []) for d in devices}
 
     # Generate reports.
     if args.json_out:
-        json_ = report.generate_json_report(merged_results)
+        json_ = report.generate_json_report(results)
         with open(args.json_out, "w") as f:
             f.write(json_)
 
     if args.html_out:
-        html = report.generate_html_report(merged_results, args.network, dt.now())
+        html = report.generate_html_report(results, args.network, dt.now())
         with open(args.html_out, "w") as f:
             f.write(html)
 
