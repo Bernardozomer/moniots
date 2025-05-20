@@ -65,6 +65,12 @@ class Severity(Enum):
     MEDIUM = "Medium"
     HIGH = "High"
 
+    def __lt__(self, other):
+        if not isinstance(other, Severity):
+            return NotImplemented
+        order = [Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH]
+        return order.index(self) < order.index(other)
+
 
 class AlertSource(Enum):
     CREDENTIALS = "Moniots"
