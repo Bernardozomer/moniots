@@ -160,7 +160,7 @@
     <div class="section-title" style="cursor:pointer;" onclick="toggleSection('os-{{ d.ip }}')">
       OS Matches <span class="badge">{{ d.os_matches|length }}</span>
     </div>
-    <div id="os-{{ d.ip }}" style="display:none;">
+    <div id="os-{{ d.ip }}">
       {% if d.os_matches %}
       <ul>
       {% for os in d.os_matches %}
@@ -180,7 +180,7 @@
     <div class="section-title" style="cursor:pointer;" onclick="toggleSection('ports-{{ d.ip }}')">
       Open Ports <span class="badge">{{ d.open_ports|length }}</span>
     </div>
-    <div id="ports-{{ d.ip }}" style="display:none;">
+    <div id="ports-{{ d.ip }}">
     {% if d.open_ports %}
     <table class="inner">
       <thead><tr><th>Port</th><th>State</th><th>Service</th><th>Product</th><th>Version</th><th>CPE</th></tr></thead>
