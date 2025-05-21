@@ -38,18 +38,32 @@
       --clr-surface-tonal-a40: #84807d;
       --clr-surface-tonal-a50: #9c9895;
     }
+
     html, body {
       margin:0; padding:0;
       font-family: 'IBM Plex Sans', sans-serif;
       background: var(--clr-surface-a0);
       color: var(--clr-light-a0);
     }
+
     body {
-      max-width:960px; margin:2rem auto; padding:0 1rem;
-      line-height:1.5;
+      max-width: 960px; 
+      margin: 2rem auto; 
+      padding: 0 1rem;
+      line-height: 1.5;
     }
-    h1 { font-size:2rem; font-weight:600; color:var(--clr-primary-a0); margin-bottom:0.5rem; }
-    .subtitle { color:var(--clr-surface-tonal-a10); margin-bottom:2rem; font-size:0.9rem; }
+
+    h1 { 
+      font-size: 2rem; 
+      font-weight: 600; 
+      color: var(--clr-primary-a0); 
+      margin-bottom: 0.5rem; 
+    }
+    .subtitle { 
+      color: var(--clr-surface-tonal-a10); 
+      margin-bottom: 2rem; 
+      font-size: 0.9rem; 
+    }
 
     /* summary table */
     table.summary { width:100%; border-collapse:collapse; margin-bottom:2rem; }
@@ -72,7 +86,7 @@
       margin-top: 1.5rem;
       margin-bottom: 0.5rem;
       font-weight: 600;
-      border-bottom: 2px solid var(--clr-surface-tonal-a10);
+      border-bottom: 2px solid var(--clr-surface-tonal-a20);
       color: var(--clr-surface-a50);
     }
 
@@ -110,14 +124,35 @@
       cursor:pointer; user-select:none;
     }
     .accordion-header:hover { background:var(--clr-surface-tonal-a20); }
+
     .accordion-header .arrow {
-      width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent;
-      border-top:6px solid var(--clr-light-a0); margin-right:0.8rem; transition:transform 0.2s;
+      width: 0;
+      height: 0;
+      border-top:    6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left:  6px solid var(--clr-light-a0);
+      margin-right:  0.8rem;
+      transition:    transform 0.2s;
     }
-    .accordion-header.open .arrow { transform:rotate(180deg); }
+
+    .accordion-header.open .arrow {
+      transform: rotate(90deg);
+    }
 
     .accordion-content { display:none; padding:0.5rem 1.6rem 1rem; }
     .accordion-content p { margin:0.4rem 0; }
+
+    .alert-header {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5em;
+      font-weight: bold;
+    }
+
+    .alert-header .badge {
+      font-weight: normal;
+    }
 
     .badge {
       display:inline-block; background:var(--clr-primary-a0); color:var(--clr-light-a0);
@@ -226,13 +261,12 @@
       {% for a in entry.alerts|sort(attribute='severity')|sort(attribute='alert') %}
       <div class="accordion-item" data-severity="{{ a.severity.value }}">
         <div class="accordion-header" onclick="toggleAccordion(this)">
-          <div style="display:flex; align-items:center;">
+          <div class="alert-header">
             <div class="arrow"></div>
-            <strong>{{ a.title }}</strong>
+            <div>{{ a.title }}</div>
+            <span class="badge">{{ a.source.value }}</span>
             <span class="badge">{{ a.severity.value }}</span>
-            {% if a.cwe_id %}
-              <span class="badge">CWE-{{ a.cwe_id }}</span>
-            {% endif %}
+            <span class="badge">CWE-{{ a.cwe_id }}</span>
           </div>
         </div>
         <div class="accordion-content">
