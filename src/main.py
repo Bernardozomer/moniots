@@ -7,6 +7,7 @@ import creds
 import discovery
 import report
 import webapp
+from models import Severity
 
 
 def main():
@@ -27,7 +28,10 @@ def main():
     ]
 
     zap_alerts = webapp.scan_web_apps(
-        http_devices, args.zap_api_key, args.local_zap_proxy
+        http_devices,
+        args.zap_api_key,
+        args.local_zap_proxy,
+        Severity(args.severity.title()),
     )
 
     # Merge alert results.
@@ -56,6 +60,15 @@ def setup_args():
 
     parser.add_argument(
         "--html", dest="html_out", default=None, help="Write HTML report to file"
+    )
+
+    parser.add_argument(
+        "--severity",
+        dest="severity",
+        type=lambda s: s.lower(),
+        choices=[s.value.lower() for s in Severity],
+        default=Severity.LOW.value.lower(),
+        help=f"Minimum severity level of alerts to include ({', '.join(s.value.lower() for s in Severity)})",
     )
 
     parser.add_argument(

@@ -5,7 +5,7 @@ from zapv2 import ZAPv2
 import models
 
 
-def scan_web_apps(devices, zap_api_key, local_zap_proxy):
+def scan_web_apps(devices, zap_api_key, local_zap_proxy, severity):
     proxies = {"http": local_zap_proxy, "https": local_zap_proxy}
     zap = ZAPv2(apikey=zap_api_key, proxies=proxies)
     zap.pscan.enable_all_scanners()
@@ -28,6 +28,11 @@ def scan_web_apps(devices, zap_api_key, local_zap_proxy):
 
         # Parse and store results.
         alerts[device] = parse_zap_alerts(zap.core.alerts(baseurl=url))
+
+        # Filter alerts by severity.
+        alerts[device] = [
+            a for a in alerts[device] if models.Severity(a.severity) >= severity
+        ]
 
     return alerts
 

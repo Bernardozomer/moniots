@@ -71,6 +71,24 @@ class Severity(Enum):
         order = [Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH]
         return order.index(self) < order.index(other)
 
+    def __le__(self, other):
+        if not isinstance(other, Severity):
+            return NotImplemented
+        order = [Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH]
+        return order.index(self) <= order.index(other)
+
+    def __gt__(self, other):
+        if not isinstance(other, Severity):
+            return NotImplemented
+        order = [Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH]
+        return order.index(self) > order.index(other)
+
+    def __ge__(self, other):
+        if not isinstance(other, Severity):
+            return NotImplemented
+        order = [Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH]
+        return order.index(self) >= order.index(other)
+
 
 class AlertSource(Enum):
     CREDENTIALS = "Moniots"
