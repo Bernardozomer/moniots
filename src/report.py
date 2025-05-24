@@ -1,9 +1,9 @@
 import json
 from dataclasses import asdict
-from datetime import datetime
 
 from jinja2 import Environment, FileSystemLoader
 
+from models import AlertSource
 
 TEMPLATE_DIR = "./templates"
 REPORT_TEMPLATE = f"{TEMPLATE_DIR}/report.html.j2"
@@ -16,6 +16,7 @@ def generate_json_report(results):
 
 def generate_html_report(results, network, now):
     env = Environment(loader=FileSystemLoader("."), extensions=["jinja2.ext.do"])
+    env.globals["AlertSource"] = AlertSource
     tmpl = env.get_template(REPORT_TEMPLATE)
     results = results_to_dict(results)
     formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")

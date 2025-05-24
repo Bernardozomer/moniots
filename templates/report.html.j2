@@ -270,20 +270,34 @@
           </div>
         </div>
         <div class="accordion-content">
-          {% if a.service is defined %}
+          <p>{{ a.description }}</p>
+
+          {% if a.source == AlertSource.MONIOTS %}
             <p><strong>Service:</strong> {{ a.service.value }}</p>
             <p><strong>Username:</strong> {{ a.username }}</p>
             <p><strong>Password:</strong> {{ a.password }}</p>
-          {% else %}
+
+          {% elif a.source == AlertSource.EXPLOITDB %}
+            <p><strong>Port:</strong> {{ a.port }}</p>
+            <p><strong>ExploitDB ID:</strong> {{ a.edb_id }}</p>
+            <p><strong>Date:</strong> {{ a.date }}</p>
+            <p><strong>Author:</strong> {{ a.author }}</p>
+            <p><strong>Download:</strong>
+              {% if a.file_url %}
+                <a href="{{ a.file_url }}" target="_blank">{{ a.file_url }}</a>
+              {% else %}
+                —
+              {% endif %}
+            </p>
+
+          {% elif a.source == AlertSource.ZAP %}
             <p><strong>URL:</strong> {{ a.url }}</p>
             <p><strong>Parameter:</strong> {{ a.parameter or '—' }}</p>
-            <p><strong>Confidence:</strong> {{ a.confidence }}</p>
-            <p><strong>WASC:</strong> {{ a.wasc or '—' }}</p>
             <p><strong>Method:</strong> {{ a.method or '—' }}</p>
             <p><strong>Evidence:</strong> {{ a.evidence or '—' }}</p>
-            <p><strong>Description:</strong> {{ a.description or '—' }}</p>
-            <p><strong>Solution:</strong> {{ a.solution or '—' }}</p>
           {% endif %}
+
+          <p><strong>Remediation:</strong> {{ a.remediation or '—' }}</p>
         </div>
       </div>
       {% endfor %}

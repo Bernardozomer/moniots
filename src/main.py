@@ -5,6 +5,7 @@ from datetime import datetime as dt
 
 import creds
 import discovery
+import analysis
 import report
 import webapp
 from models import Severity
@@ -34,8 +35,14 @@ def main():
         Severity(args.severity.title()),
     )
 
+    # Scan for exploits.
+    exploit_alerts = analysis.batch_searchsploit(devices)
+
     # Merge alert results.
-    results = {d: cred_alerts.get(d, []) + zap_alerts.get(d, []) for d in devices}
+    results = {
+        d: cred_alerts.get(d, []) + zap_alerts.get(d, []) + exploit_alerts.get(d, [])
+        for d in devices
+    }
 
     # Generate reports.
     if args.json_out:

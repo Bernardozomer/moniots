@@ -93,6 +93,7 @@ class Severity(Enum):
 class AlertSource(Enum):
     CREDENTIALS = "Moniots"
     ZAP = "OWASP Zap"
+    EXPLOITDB = "ExploitDB"
 
 
 class Confidence(Enum):
@@ -125,3 +126,12 @@ class ZAPAlert(Alert):
     parameter: Optional[str]
     evidence: Optional[str]
     confidence: Confidence
+
+
+@dataclass
+class ExploitDBAlert(Alert):
+    port: int
+    edb_id: str
+    date: str
+    author: str
+    file_url: Optional[str]
