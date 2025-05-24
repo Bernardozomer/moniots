@@ -107,8 +107,9 @@ class Alert:
     source: AlertSource
     severity: Severity
     title: str
-    description: str
-    cwe_id: int
+    description: Optional[str]
+    cwe_ids: Optional[list[int]]
+    cve_ids: Optional[list[str]]
     remediation: Optional[str]
 
 
@@ -130,8 +131,11 @@ class ZAPAlert(Alert):
 
 @dataclass
 class ExploitDBAlert(Alert):
-    port: int
     edb_id: str
-    date: str
+    verified: bool
+    port: int
+    type: str
+    platform: str
     author: str
-    file_url: Optional[str]
+    date: str
+    edb_source: str

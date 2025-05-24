@@ -25,29 +25,38 @@ def find_exploits_for_device(device: Device) -> List[ExploitDBAlert]:
     For each open port/service on `device`, call searchsploit and
     collect any matching exploits.
     """
-    findings: List[ExploitDBAlert] = []
+    alerts: List[ExploitDBAlert] = []
+
     for port in device.open_ports:
-        # Only query if we have a product string.
-        if port.product:
-            q = f"{port.product} {port.version}".strip()
-            results = _run_searchsploit(q)
-            for r in results:
-                findings.append(
-                    ExploitDBAlert(
-                        source=AlertSource.EXPLOITDB,
-                        severity=Severity.HIGH,
-                        title=r.get("Title", ""),
-                        description=r.get("Type", ""),
-                        cwe_id=0,
-                        remediation="",
-                        port=port.port,
-                        edb_id=r.get("EDB-ID", ""),
-                        date=r.get("Date", ""),
-                        author=r.get("Author", ""),
-                        file_url=r.get("URL", ""),
-                    )
+        if not port.product:
+            # Skip if we don't have a product string.
+            continue
+
+        q = f"{port.product} {port.version}".strip()
+        results = _run_searchsploit(q)
+
+        for r in results:
+            alerts.append(
+                ExploitDBAlert(
+                    source=AlertSource.EXPLOITDB,
+                    severity=Severity.HIGH,  # TODO get from CVEs
+                    title=r["Title"],
+                    description=None,
+                    cwe_ids=[],
+                    cve_ids=[c for c in r["Codes"].split(";") if c.startswith("CVE-")],
+                    remediation=None,
+                    edb_id=r.get("EDB-ID", ""),
+                    verified=True if r["Verified"] == 1 else False,
+                    port=port.port,
+                    type=r["Type"],
+                    platform=r["Platform"],
+                    author=r["Author"],
+                    date=r["Date_Published"],
+                    edb_source=r["Source"],
                 )
-    return findings
+            )
+
+    return alerts
 
 
 def batch_searchsploit(devices: List[Device]) -> Dict[Device, List[ExploitDBAlert]]:

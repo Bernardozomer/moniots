@@ -258,7 +258,9 @@
 
     {# Accordion list #}
     <div id="alerts-{{ d.ip }}">
-      {% for a in entry.alerts|sort(attribute='severity')|sort(attribute='alert') %}
+      {% for a in entry.alerts
+          | sort(attribute='severity')
+          | sort(attribute='title') %}
       <div class="accordion-item" data-severity="{{ a.severity.value }}">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <div class="alert-header">
@@ -266,22 +268,39 @@
             <div>{{ a.title }}</div>
             <span class="badge">{{ a.source.value }}</span>
             <span class="badge">{{ a.severity.value }}</span>
-            <span class="badge">CWE-{{ a.cwe_id }}</span>
+            {# show all CWE IDs #}
+            {% if a.cwe_ids %}
+              {% for cw in a.cwe_ids %}
+                <span class="badge">CWE-{{ cw }}</span>
+              {% endfor %}
+            {% endif %}
+            {# show all CVE IDs #}
+            {% if a.cve_ids %}
+              {% for cv in a.cve_ids %}
+                <span class="badge">{{ cv }}</span>
+              {% endfor %}
+            {% endif %}
           </div>
         </div>
         <div class="accordion-content">
-          <p>{{ a.description }}</p>
+          <p>{{ a.description or '—' }}</p>
 
           {% if a.source == AlertSource.MONIOTS %}
+            {# CommonCredentialsAlert #}
             <p><strong>Service:</strong> {{ a.service.value }}</p>
             <p><strong>Username:</strong> {{ a.username }}</p>
             <p><strong>Password:</strong> {{ a.password }}</p>
 
           {% elif a.source == AlertSource.EXPLOITDB %}
-            <p><strong>Port:</strong> {{ a.port }}</p>
+            {# ExploitDBAlert #}
             <p><strong>ExploitDB ID:</strong> {{ a.edb_id }}</p>
-            <p><strong>Date:</strong> {{ a.date }}</p>
+            <p><strong>Port:</strong> {{ a.port }}</p>
+            <p><strong>Type:</strong> {{ a.type }}</p>
+            <p><strong>Platform:</strong> {{ a.platform }}</p>
             <p><strong>Author:</strong> {{ a.author }}</p>
+            <p><strong>Date:</strong> {{ a.date }}</p>
+            <p><strong>Verified:</strong> {{ 'Yes' if a.verified else 'No' }}</p>
+            <p><strong>Source:</strong> {{ a.edb_source }}</p>
             <p><strong>Download:</strong>
               {% if a.file_url %}
                 <a href="{{ a.file_url }}" target="_blank">{{ a.file_url }}</a>
@@ -291,10 +310,12 @@
             </p>
 
           {% elif a.source == AlertSource.ZAP %}
+            {# ZAPAlert #}
             <p><strong>URL:</strong> {{ a.url }}</p>
-            <p><strong>Parameter:</strong> {{ a.parameter or '—' }}</p>
             <p><strong>Method:</strong> {{ a.method or '—' }}</p>
+            <p><strong>Parameter:</strong> {{ a.parameter or '—' }}</p>
             <p><strong>Evidence:</strong> {{ a.evidence or '—' }}</p>
+            <p><strong>Confidence:</strong> {{ a.confidence.value }}</p>
           {% endif %}
 
           <p><strong>Remediation:</strong> {{ a.remediation or '—' }}</p>
