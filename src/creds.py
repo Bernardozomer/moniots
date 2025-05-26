@@ -2,6 +2,7 @@ import csv
 import paramiko
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Callable
 
 import models
 
@@ -9,7 +10,9 @@ RES_DIR = "./res"
 COMMON_CREDENTIALS = f"{RES_DIR}/common_credentials.csv"
 
 
-def batch_test_common_credentials(devices):
+def batch_test_common_credentials(
+    devices: list[models.Device],
+) -> dict[models.Device, list[models.CommonCredentialsAlert]]:
     """Run vulnerability tests on devices and return structured results."""
     # Load credentials.
     creds = []
@@ -17,6 +20,7 @@ def batch_test_common_credentials(devices):
         reader = csv.reader(fp)
         creds = [(row[0], row[1]) for row in reader if len(row) >= 2]
 
+    # Attempt to connect to each device with each set of common credentials.
     results = {}
     with ThreadPoolExecutor() as pool:
         future_to_device = {
@@ -31,11 +35,16 @@ def batch_test_common_credentials(devices):
     return results
 
 
-def test_common_credentials(ip, creds, timeout_seconds=5):
-    """Test common credentials against a device."""
+def test_common_credentials(
+    ip: str, creds: list[tuple[str, str]], timeout_seconds: int = 5
+):
+    """Attempt to connect to a device with multiple sets of common credentials."""
     alerts = []
 
-    def check_and_alert(service, connect_func):
+    def check_and_alert(
+        service: models.Service, connect_func: Callable[[str, str], bool]
+    ):
+        """Check device credentials and create alerts if common credentials are found."""
         for user, pwd in creds:
             try:
                 if connect_func(user, pwd):
@@ -44,11 +53,11 @@ def test_common_credentials(ip, creds, timeout_seconds=5):
                             source=models.AlertSource.CREDENTIALS,
                             severity=models.Severity.HIGH,
                             title=f"Common {service} Credentials",
-                            description=f"Device is using easily guessable {service} credentials.",
+                            description=f"Device is using easily guessable {service.value} credentials.",
                             cwe_ids=[521, 798, 1392],
                             cve_ids=None,
                             remediation="Change device credentials.",
-                            service=getattr(models.Service, service),
+                            service=service,
                             username=user,
                             password=pwd,
                         )
@@ -56,20 +65,23 @@ def test_common_credentials(ip, creds, timeout_seconds=5):
             except Exception:
                 continue
 
-    def ssh_connect(user, pwd):
+    def ssh_connect(user: str, pwd: str) -> bool:
+        """Attempt to connect via SSH with given credentials."""
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(ip, username=user, password=pwd, timeout=timeout_seconds)
         ssh.close()
         return True
 
-    def http_connect(user, pwd):
+    def http_connect(user: str, pwd: str) -> bool:
+        """Attempt to connect via HTTP with given credentials."""
         s = requests.Session()
         payload = {"username": user, "password": pwd}
         r = s.post(f"http://{ip}/login", data=payload, timeout=timeout_seconds)
         return r.status_code == 200
 
-    check_and_alert("SSH", ssh_connect)
-    check_and_alert("HTTP", http_connect)
+    # Run checks for all services.
+    check_and_alert(models.Service.SSH, ssh_connect)
+    check_and_alert(models.Service.HTTP, http_connect)
 
     return alerts

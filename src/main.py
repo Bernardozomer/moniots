@@ -3,12 +3,12 @@
 import argparse
 from datetime import datetime as dt
 
+import analysis
 import creds
 import discovery
-import analysis
+import models
 import report
 import webapp
-from models import Severity
 
 
 def main():
@@ -20,29 +20,7 @@ def main():
     devices = discovery.parse_device_info(scanned_hosts)
 
     # Run tests.
-    cred_alerts = creds.batch_test_common_credentials(devices)
-
-    # Scan for web application vulnerabilities.
-    # TODO: Exclude zaproxy from itself?
-    http_devices = [
-        d for d in devices if any(p.service in ["http", "https"] for p in d.open_ports)
-    ]
-
-    zap_alerts = webapp.scan_web_apps(
-        http_devices,
-        args.zap_api_key,
-        args.local_zap_proxy,
-        Severity(args.severity.title()),
-    )
-
-    # Scan for exploits.
-    exploit_alerts = analysis.batch_searchsploit(devices)
-
-    # Merge alert results.
-    results = {
-        d: cred_alerts.get(d, []) + zap_alerts.get(d, []) + exploit_alerts.get(d, [])
-        for d in devices
-    }
+    results = run_tests(args, devices)
 
     # Generate reports.
     if args.json_out:
@@ -56,7 +34,36 @@ def main():
             f.write(html)
 
 
-def setup_args():
+def run_tests(
+    args: argparse.Namespace, devices: list[models.Device]
+) -> dict[models.Device, list[models.Alert]]:
+    """Run vulnerability tests on devices and return structured results."""
+    # Test for common credentials.
+    cred_alerts = creds.batch_test_common_credentials(devices)
+
+    # Scan for web application vulnerabilities.
+    http_devices = [
+        d for d in devices if any(p.service in ["http", "https"] for p in d.open_ports)
+    ]
+
+    zap_alerts = webapp.scan_web_apps(
+        http_devices,
+        args.zap_api_key,
+        args.local_zap_proxy,
+        models.Severity(args.severity.title()),
+    )
+
+    # Scan for product exploits.
+    exploit_alerts = analysis.batch_searchsploit(devices)
+
+    # Merge alert results.
+    return {
+        d: cred_alerts.get(d, []) + zap_alerts.get(d, []) + exploit_alerts.get(d, [])
+        for d in devices
+    }  # type: ignore -- type checker may not understand alert subclasses.
+
+
+def setup_args() -> argparse.Namespace:
     """Set up command-line arguments for the script."""
     parser = argparse.ArgumentParser(description="moniot: IoT vulnerability scanner")
     parser.add_argument("network", help="CIDR network range (e.g. 192.168.1.0/24)")
@@ -73,9 +80,9 @@ def setup_args():
         "--severity",
         dest="severity",
         type=lambda s: s.lower(),
-        choices=[s.value.lower() for s in Severity],
-        default=Severity.LOW.value.lower(),
-        help=f"Minimum severity level of alerts to include ({', '.join(s.value.lower() for s in Severity)})",
+        choices=[s.value.lower() for s in models.Severity],
+        default=models.Severity.LOW.value.lower(),
+        help=f"Minimum severity level of alerts to include ({', '.join(s.value.lower() for s in models.Severity)})",
     )
 
     parser.add_argument(
