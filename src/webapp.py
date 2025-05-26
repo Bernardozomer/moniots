@@ -1,11 +1,18 @@
 import time
+from typing import Callable
 
 from zapv2 import ZAPv2
 
 import models
 
 
-def scan_web_apps(devices, zap_api_key, local_zap_proxy, severity):
+def scan_web_apps(
+    devices: list[models.Device],
+    zap_api_key: str,
+    local_zap_proxy: str,
+    severity: models.Severity,
+) -> dict[models.Device, list[models.ZAPAlert]]:
+    """Scan web applications for vulnerabilities using OWASP ZAP."""
     proxies = {"http": local_zap_proxy, "https": local_zap_proxy}
     zap = ZAPv2(apikey=zap_api_key, proxies=proxies)
     zap.pscan.enable_all_scanners()
@@ -19,15 +26,15 @@ def scan_web_apps(devices, zap_api_key, local_zap_proxy, severity):
         url = "http://" + ip
         zap.core.access_url(url, followredirects=True)
         # Give the sites tree a chance to update.
-        sleep()
+        _sleep()
 
         # Perform the spider scan.
-        run_scan(zap.spider.scan, zap.spider.status, url, recurse=True)
+        _run_scan(zap.spider.scan, zap.spider.status, url, recurse=True)
         # Perform the active scan.
-        run_scan(zap.ascan.scan, zap.ascan.status, url, recurse=True, postdata=True)
+        _run_scan(zap.ascan.scan, zap.ascan.status, url, recurse=True, postdata=True)
 
         # Parse and store results.
-        alerts[device] = parse_zap_alerts(zap.core.alerts(baseurl=url))
+        alerts[device] = _parse_zap_alerts(zap.core.alerts(baseurl=url))
 
         # Filter alerts by severity.
         alerts[device] = [
@@ -37,18 +44,19 @@ def scan_web_apps(devices, zap_api_key, local_zap_proxy, severity):
     return alerts
 
 
-def run_scan(scan_func, status_func, url, **kwargs):
+def _run_scan(scan_func: Callable, status_func: Callable, url: str, **kwargs):
+    """Run a ZAP scan and monitor its progress."""
     scan_id = scan_func(url, **kwargs)
     # Give the scanner a chance to start.
-    sleep()
+    _sleep()
 
     while (progress := int(status_func(scan_id))) < 100:
         # TODO: Replace with a progress bar.
         print(f"Scan progress: {progress}%")
-        sleep()
+        _sleep()
 
 
-def parse_zap_alerts(zap_alerts):
+def _parse_zap_alerts(zap_alerts: list[dict]) -> list[models.ZAPAlert]:
     """Parse ZAP alerts for processing."""
     return [
         models.ZAPAlert(
@@ -69,6 +77,6 @@ def parse_zap_alerts(zap_alerts):
     ]
 
 
-def sleep(seconds=2):
+def _sleep(seconds: int = 2):
     """Sleep for a given time in seconds."""
     time.sleep(seconds)

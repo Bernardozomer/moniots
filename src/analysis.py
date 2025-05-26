@@ -1,13 +1,11 @@
 import subprocess
 import json
-from typing import List, Dict
 
 from models import AlertSource, Device, ExploitDBAlert, Severity
 
 
-def _run_searchsploit(query: str) -> List[Dict]:
-    """
-    Run `searchsploit -j <query>` and return the parsed JSON dict.
+def _run_searchsploit(query: str) -> list[dict]:
+    """Run `searchsploit -j <query>` and return the parsed JSON dict.
     If searchsploit isn't installed or fails, returns [].
     """
     try:
@@ -20,16 +18,15 @@ def _run_searchsploit(query: str) -> List[Dict]:
         return []
 
 
-def find_exploits_for_device(device: Device) -> List[ExploitDBAlert]:
-    """
-    For each open port/service on `device`, call searchsploit and
+def find_exploits_for_device(device: Device) -> list[ExploitDBAlert]:
+    """For each open port/service on `device`, call searchsploit and
     collect any matching exploits.
     """
-    alerts: List[ExploitDBAlert] = []
+    alerts = []
 
     for port in device.open_ports:
         if not port.product:
-            # Skip if we don't have a product string.
+            # Skip if there is no product string.
             continue
 
         q = f"{port.product} {port.version}".strip()
@@ -59,13 +56,11 @@ def find_exploits_for_device(device: Device) -> List[ExploitDBAlert]:
     return alerts
 
 
-def batch_searchsploit(devices: List[Device]) -> Dict[Device, List[ExploitDBAlert]]:
-    """
-    Run find_exploits_for_device in parallel over all devices.
-    """
+def batch_searchsploit(devices: list[Device]) -> dict[Device, list[ExploitDBAlert]]:
+    """Run find_exploits_for_device in parallel over all devices."""
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    out: Dict[Device, List[ExploitDBAlert]] = {}
+    out = {}
     with ThreadPoolExecutor() as pool:
         futures = {pool.submit(find_exploits_for_device, d): d for d in devices}
         for fut in as_completed(futures):

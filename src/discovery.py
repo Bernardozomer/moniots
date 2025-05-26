@@ -1,16 +1,21 @@
+from typing import TYPE_CHECKING
+
 import nmap
 
 import models
 
+if TYPE_CHECKING:
+    from nmap import PortScannerHostDict
 
-def discover_devices(net_range):
+
+def discover_devices(net_range: str) -> list["PortScannerHostDict"]:
     """Discover devices on the network using nmap and fingerprint them."""
     nm = nmap.PortScanner()
     nm.scan(hosts=net_range, arguments="-sV -O -T4")
     return [nm[host] for host in nm.all_hosts() if nm[host].state() == "up"]
 
 
-def parse_device_info(hosts):
+def parse_device_info(hosts: list["PortScannerHostDict"]) -> list[models.Device]:
     """Parse device information from nmap scan results."""
     devices = []
 
@@ -23,7 +28,7 @@ def parse_device_info(hosts):
         uptime_seconds = host.get("uptime", {}).get("seconds")
         last_boot = host.get("uptime", {}).get("lastboot")
 
-        # Ports
+        # Parse open ports.
         open_ports: list[models.PortInfo] = [
             models.PortInfo(
                 port=port,
@@ -36,7 +41,7 @@ def parse_device_info(hosts):
             for port, details in host.get("tcp", {}).items()
         ]
 
-        # OS matches
+        # Parse OS matches.
         os_matches: list[models.OSMatch] = []
         for match in host.get("osmatch", []):
             osclasses = [
@@ -57,8 +62,11 @@ def parse_device_info(hosts):
                     osclasses=osclasses,
                 )
             )
+
+        # Sort OS matches by accuracy and limit to top 3.
         os_matches = sorted(os_matches, key=lambda m: int(m.accuracy), reverse=True)[:3]
 
+        # Create device model instance.
         devices.append(
             models.Device(
                 ip=ip,
