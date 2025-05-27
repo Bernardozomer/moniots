@@ -16,11 +16,12 @@ def main():
     args = setup_args()
 
     # Discover and parse devices.
+    # TODO: Filter by severity level here if needed.
     scanned_hosts = discovery.discover_devices(args.network)
-    devices = discovery.parse_device_info(scanned_hosts)
+    vulners_alerts = discovery.parse_device_info(scanned_hosts)
 
     # Run tests.
-    results = run_tests(args, devices)
+    results = run_tests(args, vulners_alerts)
 
     # Generate reports.
     if args.json_out:
@@ -35,9 +36,12 @@ def main():
 
 
 def run_tests(
-    args: argparse.Namespace, devices: list[models.Device]
+    args: argparse.Namespace,
+    vulners_alerts: dict[models.Device, list[models.VulnersAlert]],
 ) -> dict[models.Device, list[models.Alert]]:
     """Run vulnerability tests on devices and return structured results."""
+    devices = list(vulners_alerts.keys())
+
     # Test for common credentials.
     cred_alerts = creds.batch_test_common_credentials(devices)
 
@@ -58,7 +62,10 @@ def run_tests(
 
     # Merge alert results.
     return {
-        d: cred_alerts.get(d, []) + zap_alerts.get(d, []) + exploit_alerts.get(d, [])
+        d: cred_alerts.get(d, [])
+        + zap_alerts.get(d, [])
+        + exploit_alerts.get(d, [])
+        + vulners_alerts.get(d, [])
         for d in devices
     }  # type: ignore -- type checker may not understand alert subclasses.
 

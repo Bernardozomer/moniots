@@ -65,6 +65,27 @@ class Severity(Enum):
     MEDIUM = "Medium"
     HIGH = "High"
 
+    @classmethod
+    def from_cvss(cls, cvss_score: float) -> "Severity":
+        """Return the Severity level based on a CVSS score."""
+        if cvss_score < 0.1:
+            return cls.INFO
+        elif cvss_score < 4.0:
+            return cls.LOW
+        elif cvss_score < 7.0:
+            return cls.MEDIUM
+        else:
+            return cls.HIGH
+
+    def to_min_cvss(self) -> float:
+        """Return the minimum CVSS score for this severity level."""
+        return {
+            Severity.INFO: 0.0,
+            Severity.LOW: 0.1,
+            Severity.MEDIUM: 4.0,
+            Severity.HIGH: 7.0,
+        }[self]
+
     def __lt__(self, other):
         if not isinstance(other, Severity):
             return NotImplemented
@@ -94,6 +115,7 @@ class AlertSource(Enum):
     CREDENTIALS = "Moniots"
     ZAP = "OWASP Zap"
     EXPLOITDB = "ExploitDB"
+    VULNERS = "Vulners"
 
 
 class Confidence(Enum):
@@ -139,3 +161,12 @@ class ExploitDBAlert(Alert):
     author: str
     date: str
     edb_source: str
+
+
+@dataclass
+class VulnersAlert(Alert):
+    port: int
+    cpe: str
+    exploit_id: Optional[str]
+    cvss: float
+    url: str

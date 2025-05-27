@@ -294,20 +294,13 @@
           {% elif a.source == AlertSource.EXPLOITDB %}
             {# ExploitDBAlert #}
             <p><strong>ExploitDB ID:</strong> {{ a.edb_id }}</p>
+            <p><strong>Verified:</strong> {{ 'Yes' if a.verified else 'No' }}</p>
             <p><strong>Port:</strong> {{ a.port }}</p>
             <p><strong>Type:</strong> {{ a.type }}</p>
             <p><strong>Platform:</strong> {{ a.platform }}</p>
             <p><strong>Author:</strong> {{ a.author }}</p>
             <p><strong>Date:</strong> {{ a.date }}</p>
-            <p><strong>Verified:</strong> {{ 'Yes' if a.verified else 'No' }}</p>
             <p><strong>Source:</strong> {{ a.edb_source }}</p>
-            <p><strong>Download:</strong>
-              {% if a.file_url %}
-                <a href="{{ a.file_url }}" target="_blank">{{ a.file_url }}</a>
-              {% else %}
-                —
-              {% endif %}
-            </p>
 
           {% elif a.source == AlertSource.ZAP %}
             {# ZAPAlert #}
@@ -316,6 +309,20 @@
             <p><strong>Parameter:</strong> {{ a.parameter or '—' }}</p>
             <p><strong>Evidence:</strong> {{ a.evidence or '—' }}</p>
             <p><strong>Confidence:</strong> {{ a.confidence.value }}</p>
+
+          {% elif a.source == AlertSource.VULNERS %}
+            {# VulnersAlert #}
+            <p><strong>Port:</strong> {{ a.port }}</p>
+            <p><strong>CPE:</strong> {{ a.cpe }}</p>
+            <p><strong>Exploit ID:</strong> {{ a.exploit_id or '—' }}</p>
+            <p><strong>CVSS:</strong> {{ a.cvss }}</p>
+            <p><strong>URL:</strong>
+              {% if a.file_url %}
+                <a href="{{ a.url }}" target="_blank">{{ a.url }}</a>
+              {% else %}
+                —
+              {% endif %}
+            </p>
           {% endif %}
 
           <p><strong>Remediation:</strong> {{ a.remediation or '—' }}</p>
