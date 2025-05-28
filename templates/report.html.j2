@@ -323,6 +323,12 @@
                 —
               {% endif %}
             </p>
+          
+          {% elif a.source == AlertSource.NVD %}
+            {# NVDAlert #}
+            <p><strong>Source:</strong> {{ a.nvd_source }}</p>
+            <p><strong>Date:</strong> {{ a.date }}</p>
+            <p><strong>URL:</strong> <a href="{{ a.url }}" target="_blank">{{ a.url }}</a></p>
           {% endif %}
 
           <p><strong>Remediation:</strong> {{ a.remediation or '—' }}</p>

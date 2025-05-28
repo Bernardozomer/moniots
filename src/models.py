@@ -116,6 +116,7 @@ class AlertSource(Enum):
     ZAP = "OWASP Zap"
     EXPLOITDB = "ExploitDB"
     VULNERS = "Vulners"
+    NVD = "NVD"
 
 
 class Confidence(Enum):
@@ -169,4 +170,12 @@ class VulnersAlert(Alert):
     cpe: str
     exploit_id: Optional[str]
     cvss: float
+    url: str
+
+
+@dataclass
+class NVDAlert(Alert):
+    cpe: str
+    nvd_source: str
+    date: str
     url: str

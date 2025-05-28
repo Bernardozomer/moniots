@@ -7,6 +7,7 @@ import analysis
 import creds
 import discovery
 import models
+import nvd
 import report
 import webapp
 
@@ -60,14 +61,23 @@ def run_tests(
     # Scan for product exploits.
     exploit_alerts = analysis.batch_searchsploit(devices)
 
-    # Merge alert results.
-    return {
-        d: cred_alerts.get(d, [])
-        + zap_alerts.get(d, [])
-        + exploit_alerts.get(d, [])
-        + vulners_alerts.get(d, [])
-        for d in devices
-    }  # type: ignore -- type checker may not understand alert subclasses.
+    # Query NVD for CVEs.
+    nvd_alerts = nvd.batch_query_nvd(devices, nvd_api_key=args.nvd_api_key)
+
+    # Merge alert results using a helper function.
+    return merge_alerts(
+        devices, cred_alerts, zap_alerts, exploit_alerts, vulners_alerts, nvd_alerts
+    )
+
+
+def merge_alerts(devices, *alert_dicts):
+    """Merge alerts from multiple sources."""
+
+    merge = lambda device: [
+        alert for source in alert_dicts for alert in source.get(device, [])
+    ]
+
+    return {device: merge(device) for device in devices}
 
 
 def setup_args() -> argparse.Namespace:
@@ -104,6 +114,13 @@ def setup_args() -> argparse.Namespace:
         dest="local_zap_proxy",
         default=None,
         help="Local ZAP proxy (e.g. http://127.0.0.1:8080)",
+    )
+
+    parser.add_argument(
+        "--nvd-api-key",
+        dest="nvd_api_key",
+        default=None,
+        help="NVD API key for CVE queries (optional, heavily reduces NVD query time)",
     )
 
     return parser.parse_args()
