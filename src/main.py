@@ -3,13 +3,13 @@
 import argparse
 from datetime import datetime as dt
 
-import analysis
+import exploitdb
 import creds
 import discovery
 import models
 import nvd
 import report
-import webapp
+import zap
 
 
 def main():
@@ -48,15 +48,15 @@ def run_tests(
         d for d in devices if any(p.service in ["http", "https"] for p in d.open_ports)
     ]
 
-    zap_alerts = webapp.scan_web_apps(
+    zap_alerts = zap.run_zap(
         http_devices,
         args.zap_api_key,
         args.local_zap_proxy,
-        models.Severity(args.severity.title()),
+        models.Severity.from_label(args.severity),
     )
 
     # Scan for product exploits.
-    exploitdb_alerts = analysis.batch_searchsploit(devices)
+    exploitdb_alerts = exploitdb.batch_query_exploitdb(devices)
 
     # Query NVD for CVEs.
     nvd_alerts = nvd.batch_query_nvd(devices, nvd_api_key=args.nvd_api_key)
@@ -92,9 +92,9 @@ def setup_args() -> argparse.Namespace:
         "--severity",
         dest="severity",
         type=lambda s: s.lower(),
-        choices=[s.value.lower() for s in models.Severity],
-        default=models.Severity.LOW.value.lower(),
-        help=f"Minimum severity level of alerts to include ({', '.join(s.value.lower() for s in models.Severity)})",
+        choices=[s.label.lower() for s in models.Severity],
+        default=models.Severity.LOW.label.lower(),
+        help=f"Minimum severity level of alerts to include ({', '.join(s.label.lower() for s in models.Severity)})",
     )
 
     parser.add_argument(

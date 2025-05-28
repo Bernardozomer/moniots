@@ -60,55 +60,53 @@ class Service(Enum):
 
 
 class Severity(Enum):
-    INFO = "Informational"
-    LOW = "Low"
-    MEDIUM = "Medium"
-    HIGH = "High"
+    INFO = ("Informational", 0.0)
+    LOW = ("Low", 0.1)
+    MEDIUM = ("Medium", 4.0)
+    HIGH = ("High", 7.0)
+
+    @property
+    def label(self) -> str:
+        return self.value[0]
+
+    @property
+    def min_cvss(self) -> float:
+        return self.value[1]
 
     @classmethod
-    def from_cvss(cls, cvss_score: float) -> "Severity":
-        """Return the Severity level based on a CVSS score."""
-        if cvss_score < 0.1:
-            return cls.INFO
-        elif cvss_score < 4.0:
-            return cls.LOW
-        elif cvss_score < 7.0:
-            return cls.MEDIUM
-        else:
-            return cls.HIGH
+    def from_label(cls, label: str) -> "Severity":
+        """Get Severity from its label."""
+        for sev in cls:
+            if sev.label.lower() == label.lower():
+                return sev
+        raise ValueError(f"Unknown severity label: {label}")
 
-    def to_min_cvss(self) -> float:
-        """Return the minimum CVSS score for this severity level."""
-        return {
-            Severity.INFO: 0.0,
-            Severity.LOW: 0.1,
-            Severity.MEDIUM: 4.0,
-            Severity.HIGH: 7.0,
-        }[self]
+    @classmethod
+    def from_cvss(cls, score: float) -> "Severity":
+        for sev in reversed(cls):
+            if score >= sev.min_cvss:
+                return sev
+        return cls.INFO
 
     def __lt__(self, other):
         if not isinstance(other, Severity):
             return NotImplemented
-        order = [Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH]
-        return order.index(self) < order.index(other)
+        return list(type(self)).index(self) < list(type(self)).index(other)
 
     def __le__(self, other):
         if not isinstance(other, Severity):
             return NotImplemented
-        order = [Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH]
-        return order.index(self) <= order.index(other)
+        return list(type(self)).index(self) <= list(type(self)).index(other)
 
     def __gt__(self, other):
         if not isinstance(other, Severity):
             return NotImplemented
-        order = [Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH]
-        return order.index(self) > order.index(other)
+        return list(type(self)).index(self) > list(type(self)).index(other)
 
     def __ge__(self, other):
         if not isinstance(other, Severity):
             return NotImplemented
-        order = [Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH]
-        return order.index(self) >= order.index(other)
+        return list(type(self)).index(self) >= list(type(self)).index(other)
 
 
 class AlertSource(Enum):
