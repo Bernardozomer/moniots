@@ -1,7 +1,8 @@
 import subprocess
 import json
 
-from models import AlertSource, Device, ExploitDBAlert, Severity
+from models import AlertSource, Device, ExploitDBAlert
+from nvd import get_cve_severity
 
 
 def _run_searchsploit(query: str) -> list[dict]:
@@ -33,10 +34,13 @@ def find_exploits_for_device(device: Device) -> list[ExploitDBAlert]:
         results = _run_searchsploit(q)
 
         for r in results:
+            cve_ids = [c for c in r["Codes"].split(";") if c.startswith("CVE-")]
+            severity = max(get_cve_severity(cve_id) for cve_id in cve_ids)
+
             alerts.append(
                 ExploitDBAlert(
                     source=AlertSource.EXPLOITDB,
-                    severity=Severity.HIGH,  # TODO get from CVEs
+                    severity=severity,
                     title=r["Title"],
                     description=None,
                     cwe_ids=[],

@@ -93,3 +93,9 @@ def query_nvd(
             )
 
     return alerts
+
+
+def get_cve_severity(cve_id: str, nvd_api_key: Optional[str] = None) -> models.Severity:
+    """Get the severity of a CVE from the NVD."""
+    cve = nvdlib.searchCVE(cveId=cve_id, key=nvd_api_key)[0]
+    return models.Severity.from_cvss(cve.score[1])  # type: ignore
