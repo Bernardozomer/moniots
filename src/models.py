@@ -115,7 +115,6 @@ class AlertSource(Enum):
     CREDENTIALS = "Moniots"
     ZAP = "OWASP Zap"
     EXPLOITDB = "ExploitDB"
-    VULNERS = "Vulners"
     NVD = "NVD"
 
 
@@ -162,15 +161,6 @@ class ExploitDBAlert(Alert):
     author: str
     date: str
     edb_source: str
-
-
-@dataclass
-class VulnersAlert(Alert):
-    port: int
-    cpe: str
-    exploit_id: Optional[str]
-    cvss: float
-    url: str
 
 
 @dataclass

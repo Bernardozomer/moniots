@@ -80,7 +80,7 @@ def query_nvd(
                 models.NVDAlert(
                     source=models.AlertSource.NVD,
                     severity=severity,
-                    title=f"{port.service} - {r.id}",  # type: ignore
+                    title=f"{port.product} - {r.id}",  # type: ignore
                     description=description,
                     cwe_ids=list(cwe_ids),
                     cve_ids=[r.id],  # type: ignore

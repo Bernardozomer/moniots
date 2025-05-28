@@ -17,12 +17,11 @@ def main():
     args = setup_args()
 
     # Discover and parse devices.
-    # TODO: Filter by severity level here if needed.
     scanned_hosts = discovery.discover_devices(args.network)
-    vulners_alerts = discovery.parse_device_info(scanned_hosts)
+    devices = discovery.parse_device_info(scanned_hosts)
 
     # Run tests.
-    results = run_tests(args, vulners_alerts)
+    results = run_tests(args, devices)
 
     # Generate reports.
     if args.json_out:
@@ -37,16 +36,14 @@ def main():
 
 
 def run_tests(
-    args: argparse.Namespace,
-    vulners_alerts: dict[models.Device, list[models.VulnersAlert]],
+    args: argparse.Namespace, devices: list[models.Device]
 ) -> dict[models.Device, list[models.Alert]]:
     """Run vulnerability tests on devices and return structured results."""
-    devices = list(vulners_alerts.keys())
-
     # Test for common credentials.
     cred_alerts = creds.batch_test_common_credentials(devices)
 
     # Scan for web application vulnerabilities.
+    # Filter devices to only those with HTTP/HTTPS services.
     http_devices = [
         d for d in devices if any(p.service in ["http", "https"] for p in d.open_ports)
     ]
@@ -59,15 +56,13 @@ def run_tests(
     )
 
     # Scan for product exploits.
-    exploit_alerts = analysis.batch_searchsploit(devices)
+    exploitdb_alerts = analysis.batch_searchsploit(devices)
 
     # Query NVD for CVEs.
     nvd_alerts = nvd.batch_query_nvd(devices, nvd_api_key=args.nvd_api_key)
 
     # Merge alert results using a helper function.
-    return merge_alerts(
-        devices, cred_alerts, zap_alerts, exploit_alerts, vulners_alerts, nvd_alerts
-    )
+    return merge_alerts(devices, cred_alerts, zap_alerts, exploitdb_alerts, nvd_alerts)
 
 
 def merge_alerts(devices, *alert_dicts):

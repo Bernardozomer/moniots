@@ -11,15 +11,13 @@ if TYPE_CHECKING:
 def discover_devices(net_range: str) -> list["PortScannerHostDict"]:
     """Discover devices on the network using nmap and fingerprint them."""
     nm = nmap.PortScanner()
-    nm.scan(hosts=net_range, arguments="-sV -O -T4 --script vulners")
+    nm.scan(hosts=net_range, arguments="-sV -O -T4")
     return [nm[host] for host in nm.all_hosts() if nm[host].state() == "up"]
 
 
-def parse_device_info(
-    hosts: list["PortScannerHostDict"],
-) -> dict[models.Device, list[models.VulnersAlert]]:
+def parse_device_info(hosts: list["PortScannerHostDict"]) -> list[models.Device]:
     """Parse device information from nmap scan results."""
-    devices = {}
+    devices = []
 
     for host in hosts:
         ip = host.get("addresses", {}).get("ipv4")
@@ -57,57 +55,29 @@ def parse_device_info(
 
         # Parse open ports and vulners alerts.
         open_ports = []
-        vulners_alerts = []
 
-        for port, details in host.get("tcp", {}).items():
-            open_ports.append(
-                models.PortInfo(
-                    port=port,
-                    state=details.get("state", ""),
-                    service=details.get("name", ""),
-                    product=details.get("product", ""),
-                    version=details.get("version", ""),
-                    cpe=details.get("cpe", ""),
-                )
+        open_ports: list[models.PortInfo] = [
+            models.PortInfo(
+                port=port,
+                state=details.get("state", ""),
+                service=details.get("name", ""),
+                product=details.get("product", ""),
+                version=details.get("version", ""),
+                cpe=details.get("cpe", ""),
             )
+            for port, details in host.get("tcp", {}).items()
+        ]
 
-            # Check for vulners script output.
-            if "script" in details and "vulners" in details["script"]:
-                # Separate each line and skip cpe repeated at the start.
-                vulners_data: list[str] = details["script"]["vulners"].split("\n")[1:]
-                cpe: str = vulners_data.pop(0)
-
-                for alert in vulners_data:
-                    alert = alert.split()
-
-                    vulners_alerts.append(
-                        models.VulnersAlert(
-                            source=models.AlertSource.VULNERS,
-                            severity=models.Severity.from_cvss(float(alert[1])),
-                            title=alert[0],
-                            description=None,  # No description provided in nmap output
-                            cwe_ids=None,
-                            cve_ids=[alert[0]] if alert[0].startswith("CVE-") else None,
-                            remediation=None,  # No remediation provided in nmap output
-                            port=int(port),
-                            cpe=cpe,
-                            exploit_id=alert[0] if len(alert) == 4 else None,
-                            cvss=float(alert[1]),
-                            url=alert[2],
-                        )
-                    )
-
-        # Create device model instance.
-        device = models.Device(
-            ip=ip,
-            hostname=hostname,
-            status=status,
-            uptime_seconds=uptime_seconds,
-            last_boot=last_boot,
-            open_ports=tuple(open_ports),
-            os_matches=tuple(os_matches),
+        devices.append(
+            models.Device(
+                ip=ip,
+                hostname=hostname,
+                status=status,
+                uptime_seconds=uptime_seconds,
+                last_boot=last_boot,
+                open_ports=tuple(open_ports),
+                os_matches=tuple(os_matches),
+            )
         )
-
-        devices[device] = vulners_alerts
 
     return devices
