@@ -51,7 +51,7 @@ def test_common_credentials(
                     alerts.append(
                         models.CommonCredentialsAlert(
                             source=models.AlertSource.CREDENTIALS,
-                            severity=models.Severity.HIGH,
+                            severity=models.Severity.CRITICAL,
                             title=f"Common {service} Credentials",
                             description=f"Device is using easily guessable {service.value} credentials.",
                             cwe_ids=[521, 798, 1392],

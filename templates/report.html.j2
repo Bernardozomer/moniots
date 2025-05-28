@@ -243,6 +243,7 @@
     <div class="alerts-toolbar">
       <div class="tabs" id="tabs-{{ d.ip }}">
         {% set sev_counts = {'All': entry.alerts|length, 
+                 'Critical': entry.alerts|selectattr('severity.label','equalto','Critical')|list|length,
                  'High': entry.alerts|selectattr('severity.label','equalto','High')|list|length,
                  'Medium': entry.alerts|selectattr('severity.label','equalto','Medium')|list|length,
                  'Low': entry.alerts|selectattr('severity.label','equalto','Low')|list|length,

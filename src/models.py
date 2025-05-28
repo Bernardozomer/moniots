@@ -64,6 +64,7 @@ class Severity(Enum):
     LOW = ("Low", 0.1)
     MEDIUM = ("Medium", 4.0)
     HIGH = ("High", 7.0)
+    CRITICAL = ("Critical", 9.0)
 
     @property
     def label(self) -> str:

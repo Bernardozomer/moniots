@@ -94,7 +94,7 @@ def setup_args() -> argparse.Namespace:
         type=lambda s: s.lower(),
         choices=[s.label.lower() for s in models.Severity],
         default=models.Severity.LOW.label.lower(),
-        help=f"Minimum severity level of alerts to include ({', '.join(s.label.lower() for s in models.Severity)})",
+        help=f"Minimum severity level of alerts to include",
     )
 
     parser.add_argument(
