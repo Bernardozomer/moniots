@@ -576,21 +576,25 @@
                     {% for a in entry.alerts | sort(attribute='severity.min_cvss', reverse=True) %} {# Sort by severity value #}
                     <div class="accordion-item" data-severity="{{ a.severity.label }}">
                         <div class="accordion-header" onclick="toggleAccordion(this)">
-                            <div class="alert-header">
-                                <div class="arrow"></div> {# Arrow for individual alert accordion #}
-                                <div>{{ a.title }}</div>
-                                <span class="badge badge-source">{{ a.source.value }}</span>
-                                <span class="badge badge-{{ a.severity.label|lower }}">{{ a.severity.label }}</span>
-                                {% if a.cwe_ids %}
-                                    {% for cw in a.cwe_ids %}
-                                    <span class="badge badge-context">CWE-{{ cw }}</span>
-                                    {% endfor %}
-                                {% endif %}
-                                {% if a.cve_ids %}
-                                    {% for cv in a.cve_ids %}
-                                    <span class="badge badge-context">{{ cv }}</span>
-                                    {% endfor %}
-                                {% endif %}
+                            <div class="alert-header" style="justify-content: space-between;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="arrow"></div> {# Arrow for individual alert accordion #}
+                                    <div>{{ a.title }}</div>
+                                </div>
+                                <div style="display: flex; gap: 0.4em; flex-direction: row-reverse;">
+                                    {% if a.cve_ids %}
+                                        {% for cv in a.cve_ids %}
+                                        <span class="badge badge-context">{{ cv }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if a.cwe_ids %}
+                                        {% for cw in a.cwe_ids %}
+                                        <span class="badge badge-context">CWE-{{ cw }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <span class="badge badge-{{ a.severity.label|lower }}">{{ a.severity.label }}</span>
+                                    <span class="badge badge-source">{{ a.source.value }}</span>
+                                </div>
                             </div>
                         </div>
                         <div class="accordion-content">
