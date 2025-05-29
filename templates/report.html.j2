@@ -1,400 +1,811 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>🕵️ Moniots IoT Cybersecurity Report</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕵️ Moniots IoT Cybersecurity Report</title>
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      /** Base colors */
-      --clr-dark-a0: #000000;
-      --clr-light-a0: #ffffff;
+    <style>
+        :root {
+            /** Base colors */
+            --clr-dark-a0: #000000;
+            --clr-light-a0: #ffffff;
 
-      /** Theme primary colors */
-      --clr-primary-a0: #bf7f43;
-      --clr-primary-a10: #c88d57;
-      --clr-primary-a20: #d09a6b;
-      --clr-primary-a30: #d8a87f;
-      --clr-primary-a40: #e0b694;
-      --clr-primary-a50: #e7c5a9;
+            /** Theme primary colors */
+            --clr-primary-a0: #bf7f43;
+            --clr-primary-a10: #c88d57;
+            --clr-primary-a20: #d09a6b;
+            --clr-primary-a30: #d8a87f;
+            --clr-primary-a40: #e0b694;
+            --clr-primary-a50: #e7c5a9;
 
-      /** Theme surface colors */
-      --clr-surface-a0: #212020;
-      --clr-surface-a10: #363535;
-      --clr-surface-a20: #4c4b4b;
-      --clr-surface-a30: #636262;
-      --clr-surface-a40: #7b7a7a;
-      --clr-surface-a50: #949393;
+            /** Theme surface colors */
+            --clr-surface-a0: #212020;
+            --clr-surface-a10: #363535;
+            --clr-surface-a20: #4c4b4b;
+            --clr-surface-a30: #636262;
+            --clr-surface-a40: #7b7a7a;
+            --clr-surface-a50: #949393;
 
-      /** Theme tonal surface colors */
-      --clr-surface-tonal-a0: #2f2924;
-      --clr-surface-tonal-a10: #433d38;
-      --clr-surface-tonal-a20: #58534e;
-      --clr-surface-tonal-a30: #6e6965;
-      --clr-surface-tonal-a40: #84807d;
-      --clr-surface-tonal-a50: #9c9895;
-    }
+            /** Theme tonal surface colors */
+            --clr-surface-tonal-a0: #2f2924;
+            --clr-surface-tonal-a10: #433d38;
+            --clr-surface-tonal-a20: #58534e;
+            --clr-surface-tonal-a30: #6e6965;
+            --clr-surface-tonal-a40: #84807d;
+            --clr-surface-tonal-a50: #9c9895;
 
-    html, body {
-      margin:0; padding:0;
-      font-family: 'IBM Plex Sans', sans-serif;
-      background: var(--clr-surface-a0);
-      color: var(--clr-light-a0);
-    }
+            /** Accent blue colors */
+            --clr-accent-blue-a0: #5F86A9;
+            --clr-accent-blue-a10: #7193B2;
+            --clr-accent-blue-a20: #82A1BC;
+            --clr-accent-blue-a30: #94AEC5;
+            --clr-accent-blue-a40: #A5BBCF;
+            --clr-accent-blue-a50: #B7C9D8;
 
-    body {
-      max-width: 960px; 
-      margin: 2rem auto; 
-      padding: 0 1rem;
-      line-height: 1.5;
-    }
+            /** Accent green colors */
+            --clr-accent-green-a0: #708D5F;
+            --clr-accent-green-a10: #809A71;
+            --clr-accent-green-a20: #8FA682;
+            --clr-accent-green-a30: #9FB394;
+            --clr-accent-green-a40: #AFBFA5;
+            --clr-accent-green-a50: #BFCCB7;
 
-    h1 { 
-      font-size: 2rem; 
-      font-weight: 600; 
-      color: var(--clr-primary-a0); 
-      margin-bottom: 0.5rem; 
-    }
-    .subtitle { 
-      color: var(--clr-surface-tonal-a10); 
-      margin-bottom: 2rem; 
-      font-size: 0.9rem; 
-    }
+            /** Accent purple colors */
+            --clr-accent-purple-a0: #8A6B91;
+            --clr-accent-purple-a10: #977B9D;
+            --clr-accent-purple-a20: #A48CA9;
+            --clr-accent-purple-a30: #B19CB5;
+            --clr-accent-purple-a40: #BDACC1;
+            --clr-accent-purple-a50: #CABCCE;
 
-    /* summary table */
-    table.summary { width:100%; border-collapse:collapse; margin-bottom:2rem; }
-    table.summary th, table.summary td {
-      padding:0.75rem 1rem; text-align:left; border-bottom:1px solid var(--clr-surface-tonal-a20);
-    }
-    table.summary th { background:var(--clr-primary-a0); color:var(--clr-light-a0); font-weight:600; }
-    table.summary tr:hover { background:var(--clr-primary-a10); cursor:pointer; }
-    a.row-link { color:inherit; text-decoration:none; display:block; width:100%; }
+            /** Accent ochre/gold colors */
+            --clr-accent-ochre-a0: #C4B273;
+            --clr-accent-ochre-a10: #CABA82;
+            --clr-accent-ochre-a20: #D1C392;
+            --clr-accent-ochre-a30: #D7CBA1;
+            --clr-accent-ochre-a40: #DED4B1;
+            --clr-accent-ochre-a50: #E4DCC0;
 
-    /* detail panel */
-    .detail { display:none; background:var(--clr-surface-a10); border:1px solid var(--clr-surface-tonal-a20);
-              border-radius:8px; padding:1.5rem; margin-bottom:2rem; }
-    .detail.active { display:block; }
-    .detail h2 { font-family:'IBM Plex Mono', monospace; margin-top:0; }
-    .detail p { margin:0.5rem 0; }
+            /** Accent red/terracotta colors */
+            --clr-accent-red-a0: #A86858;
+            --clr-accent-red-a10: #B2796A;
+            --clr-accent-red-a20: #BB897D;
+            --clr-accent-red-a30: #C59A8F;
+            --clr-accent-red-a40: #CEAAA1;
+            --clr-accent-red-a50: #D8BBB4;
 
-    /* section headers */
-    .section-title {
-      margin-top: 1.5rem;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      border-bottom: 2px solid var(--clr-surface-tonal-a20);
-      color: var(--clr-surface-a50);
-    }
+            /** Accent teal colors */
+            --clr-accent-teal-a0: #5B8C81;
+            --clr-accent-teal-a10: #6D998F;
+            --clr-accent-teal-a20: #7FA59D;
+            --clr-accent-teal-a30: #91B2AB;
+            --clr-accent-teal-a40: #A3BFB8;
+            --clr-accent-teal-a50: #B5CBC6;
+        }
 
-    /* inner tables */
-    table.inner { width:100%; border-collapse:collapse; margin-top:0.5rem; }
-    table.inner th, table.inner td {
-      padding:0.5rem; border:1px solid var(--clr-surface-tonal-a20); vertical-align:top;
-    }
-    table.inner th { background:var(--clr-surface-a0); color:var(--clr-light-a0); font-weight:600; }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--clr-surface-a0);
+            color: var(--clr-light-a0);
+        }
 
-    /* alerts area */
-    .alerts-toolbar {
-      display:flex; justify-content:space-between; align-items:center;
-      margin-top:1rem; margin-bottom:0.5rem;
-    }
-    .tabs {
-      display:flex; gap:0.5rem;
-    }
-    .tabs button {
-      background:var(--clr-surface-a10); color:var(--clr-light-a0); border:none;
-      padding:0.4rem 0.8rem; border-radius:4px; cursor:pointer; position:relative;
-    }
-    .tabs button.active { background:var(--clr-primary-a0); }
-    .tabs button .badge { margin-left:0.3rem; }
+        body {
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            line-height: 1.6; /* Improves overall text legibility */
+        }
 
-    .alerts-search input {
-      background:var(--clr-surface-a10); border:1px solid var(--clr-surface-tonal-a20);
-      color:var(--clr-light-a0); padding:0.4rem 0.8rem; border-radius:4px;
-      width:200px;
-    }
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--clr-primary-a0);
+            margin-bottom: 0.5rem;
+        }
 
-    .accordion-item { border-bottom:1px solid var(--clr-surface-tonal-a20); }
-    .accordion-header {
-      padding:0.6rem 0.8rem; display:flex; align-items:center; justify-content:space-between;
-      cursor:pointer; user-select:none;
-    }
-    .accordion-header:hover { background:var(--clr-surface-tonal-a20); }
+        .subtitle {
+            color: var(--clr-primary-a40);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
 
-    .accordion-header .arrow {
-      width: 0;
-      height: 0;
-      border-top:    6px solid transparent;
-      border-bottom: 6px solid transparent;
-      border-left:  6px solid var(--clr-light-a0);
-      margin-right:  0.8rem;
-      transition:    transform 0.2s;
-    }
+        /* General link styling */
+        a {
+            color: var(--clr-accent-blue-a30);
+            text-decoration: none;
+        }
+        a:hover,
+        a:focus {
+            color: var(--clr-accent-blue-a40);
+            text-decoration: underline;
+        }
 
-    .accordion-header.open .arrow {
-      transform: rotate(90deg);
-    }
+        /* Main summary table of devices */
+        table.summary {
+            width: 100%;
+            border-collapse: separate; /* Allows border-radius to work with cell borders */
+            border-spacing: 0;
+            margin-bottom: 2.5rem;
+            border-radius: 8px;
+            overflow: hidden; /* Ensures content respects the border-radius */
+            border: 1px solid var(--clr-surface-tonal-a20);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        table.summary th,
+        table.summary td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--clr-surface-tonal-a20);
+        }
+        table.summary th {
+            background: var(--clr-primary-a0);
+            color: var(--clr-light-a0);
+            font-weight: 600;
+        }
+        table.summary td:first-child,
+        table.summary th:first-child {
+            padding-left: 1.5rem;
+        }
+        table.summary td:last-child,
+        table.summary th:last-child {
+            padding-right: 1.5rem;
+        }
+        table.summary tr:nth-child(even) {
+            background-color: var(--clr-surface-tonal-a0); /* Zebra striping for readability */
+        }
+        table.summary tr:last-child td {
+            border-bottom: 0; /* Removes bottom border from the last row for cleaner look with border-radius */
+        }
+        table.summary tr:hover {
+            background: var(--clr-primary-a10) !important; /* !important to override potential nth-child */
+            cursor: pointer;
+        }
+        /* Apply border-radius to corner cells */
+        table.summary th:first-child { border-top-left-radius: 7px; } /* 7px to fit inside the 8px table radius */
+        table.summary th:last-child { border-top-right-radius: 7px; }
+        table.summary tr:last-child td:first-child { border-bottom-left-radius: 7px; }
+        table.summary tr:last-child td:last-child { border-bottom-right-radius: 7px; }
 
-    .accordion-content { display:none; padding:0.5rem 1.6rem 1rem; }
-    .accordion-content p { margin:0.4rem 0; }
 
-    .alert-header {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.5em;
-      font-weight: bold;
-    }
+        /* Panel for displaying detailed information about a selected device */
+        .detail {
+            display: none; /* Initially hidden, shown via JavaScript */
+            background: var(--clr-surface-a10);
+            border: 1px solid var(--clr-surface-tonal-a20);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .detail.active {
+            display: block; /* Class added by JS to show the panel */
+        }
+        .detail h2 {
+            font-family: 'IBM Plex Mono', monospace;
+            margin-top: 0;
+            color: var(--clr-accent-teal-a20);
+        }
+        .detail p {
+            margin: 0.6rem 0;
+        }
 
-    .alert-header .badge {
-      font-weight: normal;
-    }
+        /* Styling for headers of collapsible sections within a detail panel */
+        .section-title {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-bottom: 2px solid var(--clr-surface-tonal-a50);
+            color: var(--clr-accent-teal-a40);
+            display: flex; /* Enables flexbox for icon and text alignment */
+            justify-content: space-between; /* Pushes badge to the right */
+            align-items: center;
+            cursor: pointer; /* Indicates interactivity */
+            user-select: none; /* Prevents text selection on click */
+        }
+        .section-title-main { /* Groups the arrow and text to the left */
+            display: flex;
+            align-items: center;
+        }
+        .section-title .section-arrow {
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 6px solid var(--clr-light-a0); /* Arrow points right by default */
+            margin-right: 1rem;
+            transition: transform 0.3s ease, border-left-color 0.3s ease;
+        }
+        .section-title.open .section-arrow {
+            transform: rotate(90deg); /* Rotates arrow down when section is open */
+            border-left-color: var(--clr-accent-teal-a20); /* Section arrow turns teal when open */
+        }
+        .section-title .badge-count {
+            background-color: var(--clr-accent-purple-a0);
+            color: var(--clr-light-a0);
+            /* margin-left: auto; /* Ensures badge is pushed to the far right if space-between on parent isn't enough */
+        }
+        .section-content { /* Common class for content of collapsible sections */
+            /* Add any shared styling for section content areas here if needed */
+        }
 
-    .badge {
-      display:inline-block; background:var(--clr-primary-a0); color:var(--clr-light-a0);
-      padding:0.2em 0.5em; border-radius:999px; font-size:0.8em;
-      vertical-align:middle;
-    }
-  </style>
+
+        /* Tables used within detail sections (e.g., for open ports) */
+        table.inner {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1rem;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--clr-surface-tonal-a20);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+        table.inner th,
+        table.inner td {
+            padding: 0.6rem 0.8rem;
+            border-bottom: 1px solid var(--clr-surface-tonal-a20);
+            vertical-align: top;
+        }
+        table.inner th {
+            background: var(--clr-accent-teal-a0); /* Using an accent for header differentiation */
+            color: var(--clr-light-a0);
+            font-weight: 600;
+        }
+        table.inner tr:nth-child(even) {
+            background-color: var(--clr-surface-tonal-a10); /* Zebra striping for data rows */
+        }
+        table.inner th:first-child { border-top-left-radius: 5px; } /* Inner table radius adjustments */
+        table.inner th:last-child { border-top-right-radius: 5px; }
+        table.inner tr:last-child td:first-child { border-bottom-left-radius: 5px; }
+        table.inner tr:last-child td:last-child { border-bottom-right-radius: 5px; }
+        table.inner tr:last-child td {
+            border-bottom: 0;
+        }
+
+        /* Toolbar for filtering and searching alerts */
+        .alerts-toolbar {
+            display: flex;
+            flex-wrap: wrap; /* Allows elements to wrap on smaller screens */
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            gap: 1rem; /* Provides spacing when items wrap */
+        }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap; /* Allows tabs to wrap */
+        }
+        .tabs button {
+            background: var(--clr-surface-a20);
+            color: var(--clr-light-a0);
+            border: 1px solid var(--clr-surface-tonal-a20);
+            padding: 0.5rem 1rem;
+            border-radius: 12px; /* Softer, more pill-like shape */
+            cursor: pointer;
+            position: relative; /* For potential future pseudo-elements or positioning */
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.3s, transform 0.15s;
+        }
+        .tabs button:hover {
+            background: var(--clr-surface-a30); /* Visual feedback on hover */
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 0 0 2px var(--clr-light-a0); /* Enhanced hover effect */
+        }
+        /* Active tab styling is dynamically applied via JavaScript */
+        .tabs button .badge {
+            margin-left: 0.4rem;
+            font-size: 0.75em;
+            transition: background-color 0.2s, color 0.2s; /* For smooth updates if badge color changes with tab state */
+        }
+
+        .alerts-search input {
+            background: var(--clr-surface-a10);
+            border: 1px solid var(--clr-surface-tonal-a20);
+            color: var(--clr-light-a0);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            width: 220px;
+            transition: border-color 0.2s, box-shadow 0.3s, background-color 0.2s, color 0.2s;
+        }
+        .alerts-search input:focus,
+        .alerts-search input:hover {
+            border-color: var(--clr-primary-a0); /* Highlights input on focus/hover */
+            outline: none; /* Removes default browser outline */
+            box-shadow: 0 0 0 2px var(--clr-primary-a50); /* Custom focus ring */
+            background: var(--clr-surface-a20);
+        }
+
+        /* Accordion styling for individual alerts */
+        .accordion-item {
+            border-bottom: 1px solid var(--clr-surface-tonal-a20);
+        }
+        .accordion-item:last-child {
+            border-bottom: none; /* Cleaner look for the last item */
+        }
+        .accordion-header {
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s ease;
+        }
+        .accordion-header:hover {
+            background: var(--clr-surface-tonal-a10);
+        }
+        .accordion-header .arrow { /* This is the specific arrow for alert items */
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 6px solid var(--clr-light-a0);
+            margin-right: 1rem;
+            transition: transform 0.3s ease, border-left-color 0.3s ease;
+        }
+        .accordion-header.open .arrow {
+            transform: rotate(90deg);
+            border-left-color: var(--clr-primary-a20); /* Alert accordion arrow (remains orange when open) */
+        }
+        .accordion-content {
+            display: none; /* Hidden by default, shown by JS */
+            padding: 0.8rem 1.8rem 1.2rem;
+            background-color: var(--clr-surface-tonal-a0); /* Differentiates content area */
+        }
+        .accordion-content p {
+            margin: 0.5rem 0;
+            line-height: 1.7;
+        }
+        .accordion-content strong {
+            color: var(--clr-primary-a50); /* Makes important keywords stand out */
+        }
+
+        /* Header within an alert accordion item, containing title and badges */
+        .alert-header {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5em;
+            font-weight: 600;
+            flex-grow: 1; /* Allows the title div to take available space */
+        }
+        .alert-header .badge {
+            font-weight: normal; /* Resets badge font weight if it inherited from .alert-header */
+        }
+
+        /* Generic badge styling, intended to be extended by specific badge types */
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.6em;
+            border-radius: 12px;
+            font-size: 0.75em;
+            vertical-align: middle;
+            line-height: 1.2;
+            text-transform: capitalize; /* Standardize casing for badge text */
+        }
+
+        /* Badges for alert severities, using distinct colors for quick identification */
+        .badge-critical { background-color: var(--clr-accent-red-a0); color: var(--clr-light-a0); }
+        .badge-high { background-color: var(--clr-primary-a0); color: var(--clr-light-a0); }
+        .badge-medium { background-color: var(--clr-accent-ochre-a0); color: var(--clr-dark-a0); } /* Ochre requires dark text for contrast */
+        .badge-low { background-color: var(--clr-accent-blue-a0); color: var(--clr-light-a0); }
+        .badge-informational { background-color: var(--clr-accent-teal-a0); color: var(--clr-light-a0); }
+        .badge-all { background-color: var(--clr-surface-a30); color: var(--clr-light-a0); } /* For 'All' filter tab */
+
+        /* Badges for contextual information like source, CWE, CVE */
+        .badge-context {
+            background-color: var(--clr-accent-green-a0);
+            color: var(--clr-light-a0);
+            text-transform: none; /* CVE/CWE IDs should retain their original casing */
+        }
+        .badge-source {
+            background-color: var(--clr-accent-purple-a20);
+            color: var(--clr-dark-a0); /* Purple tint requires dark text */
+            text-transform: uppercase; /* Makes source stand out */
+        }
+
+        /* Styling for messages indicating no data is available in a section */
+        .no-data {
+            font-style: italic;
+            color: var(--clr-surface-a50);
+            padding: 1rem 0;
+        }
+    </style>
 </head>
 <body>
-  <h1>🕵️ Moniots IoT Cybersecurity Report</h1>
-  <div class="subtitle">{{ results|length }} devices on {{ network }} at {{ now }}</div>
+    <h1>🕵️ Moniots IoT Cybersecurity Report</h1>
+    <div class="subtitle">{{ results|length }} devices on {{ network }} at {{ now }}</div>
 
-  {# SUMMARY #}
-  <table class="summary">
-    <thead>
-      <tr><th>IP</th><th>Hostname</th><th>Open Ports</th><th>Alerts</th></tr>
-    </thead>
-    <tbody>
-      {% for entry in results %}
-      {% set d = entry.device %}
-      <tr data-ip="{{ d.ip }}" onclick="showDetail('{{ d.ip }}')">
-        <td>{{ d.ip }}</td>
-        <td>{{ d.hostname or '—' }}</td>
-        <td>{{ d.open_ports|length }}</td>
-        <td>{{ entry.alerts|length }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  {# DETAILS #}
-  {% for entry in results %}
-  {% set d = entry.device %}
-  <div id="detail-{{ d.ip }}" class="detail">
-    <h2>{{ d.ip }} ({{ d.hostname or 'N/A' }})</h2>
-    <p><strong>Status:</strong> {{ d.status }} |
-       <strong>Uptime:</strong> {{ d.uptime_seconds or 'Unknown' }} s |
-       <strong>Last Boot:</strong> {{ d.last_boot or 'Unknown' }}</p>
-
-    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('os-{{ d.ip }}')">
-      OS Matches <span class="badge">{{ d.os_matches|length }}</span>
-    </div>
-    <div id="os-{{ d.ip }}">
-      {% if d.os_matches %}
-      <ul>
-      {% for os in d.os_matches %}
-      <li>
-        <strong>{{ os.name }}</strong> ({{ os.accuracy }}%)<br>
-        {% for cls in os.osclasses %}
-        <small>{{ cls.type }} / {{ cls.vendor }} {{ cls.osfamily }} {{ cls.osgen or '' }}</small><br>
-        {% endfor %}
-      </li>
-      {% endfor %}
-      </ul>
-      {% else %}
-      <p>No OS match.</p>
-      {% endif %}
-    </div>
-    
-    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('ports-{{ d.ip }}')">
-      Open Ports <span class="badge">{{ d.open_ports|length }}</span>
-    </div>
-    <div id="ports-{{ d.ip }}">
-    {% if d.open_ports %}
-    <table class="inner">
-      <thead><tr><th>Port</th><th>State</th><th>Service</th><th>Product</th><th>Version</th><th>CPE</th></tr></thead>
-      <tbody>
-      {% for p in d.open_ports %}
-      <tr>
-        <td>{{ p.port }}</td>
-        <td>{{ p.state }}</td>
-        <td>{{ p.service }}</td>
-        <td>{{ p.product or '—' }}</td>
-        <td>{{ p.version or '—' }}</td>
-        <td>{{ p.cpe or '—' }}</td>
-      </tr>
-      {% endfor %}
-      </tbody>
+    {# SUMMARY TABLE OF DEVICES #}
+    <table class="summary">
+        <thead>
+            <tr><th>IP</th><th>Hostname</th><th>Open Ports</th><th>Alerts</th></tr>
+        </thead>
+        <tbody>
+            {% for entry in results %}
+            {% set d = entry.device %}
+            <tr data-ip="{{ d.ip }}" onclick="showDetail('{{ d.ip }}')">
+                <td>{{ d.ip }}</td>
+                <td>{{ d.hostname or '—' }}</td>
+                <td>{{ d.open_ports|length }}</td>
+                <td>
+                    {# Display a badge colored by the highest severity alert for this device #}
+                    <span class="badge
+                        {% if (entry.alerts|selectattr('severity.label','equalto','Critical')|list|length) > 0 %}badge-critical
+                        {% elif (entry.alerts|selectattr('severity.label','equalto','High')|list|length) > 0 %}badge-high
+                        {% elif (entry.alerts|selectattr('severity.label','equalto','Medium')|list|length) > 0 %}badge-medium
+                        {% elif (entry.alerts|selectattr('severity.label','equalto','Low')|list|length) > 0 %}badge-low
+                        {% elif entry.alerts|length > 0 %}badge-informational
+                        {% else %}badge-all{% endif %}">
+                        {{ entry.alerts|length }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
-    {% else %}
-      <p>No open ports.</p>
-    {% endif %}
-    </div>
 
-    <div class="section-title" style="cursor:pointer;" onclick="toggleSection('alerts-{{ d.ip }}')">
-      Alerts <span class="badge">{{ entry.alerts|length }}</span>
-    </div>
-    <div class="alerts-toolbar">
-      <div class="tabs" id="tabs-{{ d.ip }}">
-        {% set sev_counts = {'All': entry.alerts|length, 
-                 'Critical': entry.alerts|selectattr('severity.label','equalto','Critical')|list|length,
-                 'High': entry.alerts|selectattr('severity.label','equalto','High')|list|length,
-                 'Medium': entry.alerts|selectattr('severity.label','equalto','Medium')|list|length,
-                 'Low': entry.alerts|selectattr('severity.label','equalto','Low')|list|length,
-                 'Informational': entry.alerts|selectattr('severity.label','equalto','Informational')|list|length } %}
-        {% for sev, cnt in sev_counts.items() %}
-        <button class="{{ 'active' if loop.first else '' }}" data-sev="{{ sev }}">{{ sev }}<span class="badge">{{ cnt }}</span></button>
-        {% endfor %}
-      </div>
-      <div class="alerts-search">
-        <input type="text" placeholder="Search alerts…" oninput="filterAlerts('{{ d.ip }}', this.value)">
-      </div>
-    </div>
+    {# DETAIL PANELS FOR EACH DEVICE (Initially hidden) #}
+    {% for entry in results %}
+    {% set d = entry.device %}
+    <div id="detail-{{ d.ip }}" class="detail">
+        <h2>{{ d.ip }} ({{ d.hostname or 'N/A' }})</h2>
+        <p><strong>Status:</strong> {{ d.status }} |
+            <strong>Uptime:</strong> {{ d.uptime_seconds | default('Unknown', true) }}s |
+            <strong>Last Boot:</strong> {{ d.last_boot | default('Unknown', true) }}</p>
 
-    {# Accordion list #}
-    <div id="alerts-{{ d.ip }}">
-      {% for a in entry.alerts
-          | sort(attribute='severity')
-          | sort(attribute='title') %}
-      <div class="accordion-item" data-severity="{{ a.severity.label }}">
-        <div class="accordion-header" onclick="toggleAccordion(this)">
-          <div class="alert-header">
-            <div class="arrow"></div>
-            <div>{{ a.title }}</div>
-            <span class="badge">{{ a.source.value }}</span>
-            <span class="badge">{{ a.severity.label }}</span>
-            {# show all CWE IDs #}
-            {% if a.cwe_ids %}
-              {% for cw in a.cwe_ids %}
-                <span class="badge">CWE-{{ cw }}</span>
-              {% endfor %}
-            {% endif %}
-            {# show all CVE IDs #}
-            {% if a.cve_ids %}
-              {% for cv in a.cve_ids %}
-                <span class="badge">{{ cv }}</span>
-              {% endfor %}
-            {% endif %}
-          </div>
+        {# OS Matches Section - Collapsible #}
+        <div class="section-title" onclick="toggleSectionContent('os-content-{{ d.ip }}', this)">
+            <div class="section-title-main">
+                <div class="section-arrow"></div> OS Matches
+            </div>
+            <span class="badge badge-count">{{ d.os_matches|length }}</span>
         </div>
-        <div class="accordion-content">
-          <p>{{ a.description or '—' }}</p>
-
-          {% if a.source == AlertSource.MONIOTS %}
-            {# CommonCredentialsAlert #}
-            <p><strong>Service:</strong> {{ a.service.value }}</p>
-            <p><strong>Username:</strong> {{ a.username }}</p>
-            <p><strong>Password:</strong> {{ a.password }}</p>
-
-          {% elif a.source == AlertSource.EXPLOITDB %}
-            {# ExploitDBAlert #}
-            <p><strong>ExploitDB ID:</strong> {{ a.edb_id }}</p>
-            <p><strong>Verified:</strong> {{ 'Yes' if a.verified else 'No' }}</p>
-            <p><strong>Port:</strong> {{ a.port }}</p>
-            <p><strong>Type:</strong> {{ a.type }}</p>
-            <p><strong>Platform:</strong> {{ a.platform }}</p>
-            <p><strong>Author:</strong> {{ a.author }}</p>
-            <p><strong>Date:</strong> {{ a.date }}</p>
-            <p><strong>Source:</strong> {{ a.edb_source }}</p>
-
-          {% elif a.source == AlertSource.ZAP %}
-            {# ZAPAlert #}
-            <p><strong>URL:</strong> {{ a.url }}</p>
-            <p><strong>Method:</strong> {{ a.method or '—' }}</p>
-            <p><strong>Parameter:</strong> {{ a.parameter or '—' }}</p>
-            <p><strong>Evidence:</strong> {{ a.evidence or '—' }}</p>
-            <p><strong>Confidence:</strong> {{ a.confidence.value }}</p>
-
-          {% elif a.source == AlertSource.VULNERS %}
-            {# VulnersAlert #}
-            <p><strong>Port:</strong> {{ a.port }}</p>
-            <p><strong>CPE:</strong> {{ a.cpe }}</p>
-            <p><strong>Exploit ID:</strong> {{ a.exploit_id or '—' }}</p>
-            <p><strong>CVSS:</strong> {{ a.cvss }}</p>
-            <p><strong>URL:</strong>
-              {% if a.file_url %}
-                <a href="{{ a.url }}" target="_blank">{{ a.url }}</a>
-              {% else %}
-                —
-              {% endif %}
-            </p>
-          
-          {% elif a.source == AlertSource.NVD %}
-            {# NVDAlert #}
-            <p><strong>Source:</strong> {{ a.nvd_source }}</p>
-            <p><strong>Date:</strong> {{ a.date }}</p>
-            <p><strong>URL:</strong> <a href="{{ a.url }}" target="_blank">{{ a.url }}</a></p>
-          {% endif %}
-
-          <p><strong>Remediation:</strong> {{ a.remediation or '—' }}</p>
+        <div id="os-content-{{ d.ip }}" class="section-content" style="display: none;">
+            {% if d.os_matches %}
+            <ul>
+                {% for os in d.os_matches %}
+                <li>
+                    <strong>{{ os.name }}</strong> ({{ os.accuracy }}%)<br>
+                    {% for cls in os.osclasses %}
+                    <small>{{ cls.type }} / {{ cls.vendor }} {{ cls.osfamily }} {{ cls.osgen or '' }}</small><br>
+                    {% endfor %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="no-data">No OS match.</p>
+            {% endif %}
         </div>
-      </div>
-      {% endfor %}
+
+        {# Open Ports Section - Collapsible #}
+        <div class="section-title" onclick="toggleSectionContent('ports-content-{{ d.ip }}', this)">
+            <div class="section-title-main">
+                <div class="section-arrow"></div> Open Ports
+            </div>
+            <span class="badge badge-count">{{ d.open_ports|length }}</span>
+        </div>
+        <div id="ports-content-{{ d.ip }}" class="section-content" style="display: none;">
+            {% if d.open_ports %}
+            <table class="inner">
+                <thead><tr><th>Port</th><th>State</th><th>Service</th><th>Product</th><th>Version</th><th>CPE</th></tr></thead>
+                <tbody>
+                    {% for p in d.open_ports %}
+                    <tr>
+                        <td>{{ p.port }}</td>
+                        <td>{{ p.state }}</td>
+                        <td>{{ p.service }}</td>
+                        <td>{{ p.product or '—' }}</td>
+                        <td>{{ p.version or '—' }}</td>
+                        <td>{{ p.cpe or '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-data">No open ports.</p>
+            {% endif %}
+        </div>
+
+        {# Alerts Section - Collapsible #}
+        <div class="section-title" onclick="toggleSectionContent('alerts-panel-{{ d.ip }}', this)">
+            <div class="section-title-main">
+                <div class="section-arrow"></div> Alerts
+            </div>
+            <span class="badge badge-count">{{ entry.alerts|length }}</span>
+        </div>
+        <div id="alerts-panel-{{ d.ip }}" class="section-content" style="display: none;">
+            <div class="alerts-toolbar">
+                <div class="tabs" id="tabs-{{ d.ip }}">
+                    {# Dynamically generate tabs for alert severities present in this device's alerts #}
+                    {% set sev_counts = {'All': entry.alerts|length} %}
+                    {% for alert_item in entry.alerts %}
+                        {% set sev_label = alert_item.severity.label %}
+                        {% set sev_counts_sev_label = sev_counts[sev_label] | default(0) %}
+                        {% set _ = sev_counts.update({sev_label: sev_counts_sev_label + 1}) %}
+                    {% endfor %}
+
+                    {% for sev in ['All', 'Critical', 'High', 'Medium', 'Low', 'Informational'] %}
+                        {% if sev_counts[sev] is defined and (sev_counts[sev] > 0 or sev == 'All') %}
+                        <button data-sev="{{ sev }}">
+                            {{ sev }}
+                            <span class="badge badge-{{ sev|lower }}">{{ sev_counts[sev] }}</span>
+                        </button>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="alerts-search">
+                    <input type="text" placeholder="Search alerts…" oninput="filterAlerts('{{ d.ip }}', this.value)">
+                </div>
+            </div>
+
+            <div class="alerts-list" id="alerts-list-{{ d.ip }}">
+                {% if entry.alerts %}
+                    {% for a in entry.alerts | sort(attribute='severity.min_cvss', reverse=True) %} {# Sort by severity value #}
+                    <div class="accordion-item" data-severity="{{ a.severity.label }}">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="alert-header">
+                                <div class="arrow"></div> {# Arrow for individual alert accordion #}
+                                <div>{{ a.title }}</div>
+                                <span class="badge badge-source">{{ a.source.value }}</span>
+                                <span class="badge badge-{{ a.severity.label|lower }}">{{ a.severity.label }}</span>
+                                {% if a.cwe_ids %}
+                                    {% for cw in a.cwe_ids %}
+                                    <span class="badge badge-context">CWE-{{ cw }}</span>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if a.cve_ids %}
+                                    {% for cv in a.cve_ids %}
+                                    <span class="badge badge-context">{{ cv }}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="accordion-content">
+                            {% if a.description %}
+                                <p>{{ a.description | replace('\n', '<br>') | safe }}</p>
+                            {% endif %}
+
+                            {# Specific details based on alert source type #}
+                            {% if a.source == AlertSource.MONIOTS %}
+                                <p><strong>Service:</strong> {{ a.service.value }}</p>
+                                <p><strong>Username:</strong> {{ a.username }}</p>
+                                <p><strong>Password:</strong> {{ a.password }}</p>
+                            {% elif a.source == AlertSource.EXPLOITDB %}
+                                <p><strong>ExploitDB ID:</strong> {{ a.edb_id }}</p>
+                                <p><strong>Verified:</strong> {{ 'Yes' if a.verified else 'No' }}</p>
+                                {% if a.port %}<p><strong>Port:</strong> {{ a.port }}</p>{% endif %}
+                                <p><strong>Type:</strong> {{ a.type }}</p>
+                                <p><strong>Platform:</strong> {{ a.platform }}</p>
+                                {% if a.author %}<p><strong>Author:</strong> {{ a.author }}</p>{% endif %}
+                                {% if a.date %}<p><strong>Date:</strong> {{ a.date }}</p>{% endif %}
+                                {% if a.edb_source %}<p><strong>Source Link:</strong> <a href="{{ a.edb_source }}" target="_blank" rel="noopener noreferrer">{{ a.edb_source }}</a></p>{% endif %}
+                            {% elif a.source == AlertSource.ZAP %}
+                                <p><strong>URL:</strong> <a href="{{ a.url }}" target="_blank" rel="noopener noreferrer">{{ a.url }}</a></p>
+                                {% if a.method %}<p><strong>Method:</strong> {{ a.method }}</p>{% endif %}
+                                {% if a.parameter %}<p><strong>Parameter:</strong> {{ a.parameter }}</p>{% endif %}
+                                {% if a.evidence %}<p><strong>Evidence:</strong><br><pre><code>{{ a.evidence | e }}</code></pre></p>{% endif %} {# Escape evidence for security #}
+                                {% if a.confidence %}<p><strong>Confidence:</strong> {{ a.confidence.value }}</p>{% endif %}
+                            {% elif a.source == AlertSource.NVD %}
+                                {% if a.nvd_source %}<p><strong>NVD Source:</strong> {{ a.nvd_source }}</p>{% endif %}
+                                {% if a.date %}<p><strong>Date:</strong> {{ a.date }}</p>{% endif %}
+                                <p><strong>URL:</strong> <a href="{{ a.url }}" target="_blank" rel="noopener noreferrer">{{ a.url }}</a></p>
+                            {% endif %}
+
+                            {% if a.remediation %}
+                                <p><strong>Remediation:</strong><br>{{ a.remediation | replace('\n', '<br>') | safe }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-data">No alerts for this device.</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
-  {% endfor %}
+    {% endfor %}
 
-  <script>
-    function showDetail(ip) {
-      document.querySelectorAll('.detail').forEach(d=>d.classList.remove('active'));
-      document.getElementById('detail-'+ip).classList.add('active');
-      window.scrollTo({ top: document.getElementById('detail-'+ip).offsetTop-20, behavior:'smooth' });
-    }
+    <script>
+        /**
+         * Shows the detail panel for a given IP and hides others.
+         * Also initializes the state of collapsible sections and alert filters for the shown panel.
+         * @param {string} ip - The IP address of the device whose details are to be shown.
+         */
+        function showDetail(ip) {
+            document.querySelectorAll('.detail').forEach(d => d.classList.remove('active'));
+            const targetDetail = document.getElementById('detail-' + ip);
 
-    function toggleAccordion(header) {
-      const arrow = header.querySelector('.arrow');
-      const content = header.nextElementSibling;
-      const open = header.classList.toggle('open');
-      content.style.display = open ? 'block' : 'none';
-    }
+            if (targetDetail) {
+                targetDetail.classList.add('active');
+                const offsetTop = targetDetail.offsetTop - 20; // 20px offset for better visibility from top
+                window.scrollTo({ top: offsetTop, behavior: 'smooth' });
 
-    /* Tab switching */
-    document.querySelectorAll('[id^="tabs-"] button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const toolbar = btn.closest('.alerts-toolbar');
-        const ip = toolbar.closest('.detail').id.replace('detail-','');
-        const tabs   = toolbar.querySelector('.tabs');
-        const search = toolbar.querySelector('input').value.trim().toLowerCase();
+                // Initialize sections within this detail panel
+                // OS Matches and Open Ports sections will now start expanded
+                setSectionState('os-content-' + ip, true);
+                setSectionState('ports-content-' + ip, true);
+                setSectionState('alerts-panel-' + ip, true); // Start Alerts section open
 
-        // 1) activate the clicked tab
-        tabs.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+                // Initialize the first alert filter tab as active
+                const firstTab = targetDetail.querySelector(`#tabs-${ip} button`);
+                if (firstTab) {
+                    setActiveTab(firstTab);
+                    filterAlerts(ip, ''); // Apply initial filter (all severities, no text search)
+                }
+            }
+        }
 
-        // 2) re‐filter all the accordion items
-        filterAlerts(ip, search);
-      });
-    });
+        /**
+         * Toggles the display of an accordion content area and the 'open' class on its header.
+         * @param {HTMLElement} header - The header element of the accordion item.
+         */
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const isOpen = header.classList.toggle('open');
+            content.style.display = isOpen ? 'block' : 'none';
+        }
 
-    /* Search filtering */
-    function filterAlerts(ip, text) {
-      const container = document.getElementById('alerts-'+ip);
-      const lc = text.toLowerCase();
-      // find which severity is selected
-      const tabs = document.getElementById('tabs-'+ip);
-      const activeTab = tabs.querySelector('button.active').dataset.sev;
+        // Defines colors for different alert severities, used for styling active tabs.
+        const severityColors = {
+            "critical": "var(--clr-accent-red-a0)",
+            "high": "var(--clr-primary-a0)",
+            "medium": "var(--clr-accent-ochre-a0)",
+            "low": "var(--clr-accent-blue-a0)",
+            "informational": "var(--clr-accent-teal-a0)",
+            "all": "var(--clr-surface-a30)"
+        };
+        // Defines text colors for severity tabs, ensuring readability against badge backgrounds.
+        const severityTextColors = {
+            "critical": "var(--clr-light-a0)",
+            "high": "var(--clr-light-a0)",
+            "medium": "var(--clr-dark-a0)", // Ochre background is lighter, needs dark text
+            "low": "var(--clr-light-a0)",
+            "informational": "var(--clr-light-a0)",
+            "all": "var(--clr-light-a0)"
+        };
 
-      container.querySelectorAll('.accordion-item').forEach(item => {
-        const sevMatch = activeTab === 'All' || item.dataset.severity === activeTab;
-        const txtMatch = item.innerText.toLowerCase().includes(lc);
-        item.style.display = (sevMatch && txtMatch) ? '' : 'none';
-      });
-    }
-    
-    /* Section toggling */
-    function toggleSection(id) {
-      var el = document.getElementById(id);
-      if (el.style.display === "none" || el.style.display === "") {
-        el.style.display = "block";
-      } else {
-        el.style.display = "none";
-      }
-    }
-  </script>
+        /**
+         * Sets the visual style for the active alert filter tab and ensures others are reset.
+         * @param {HTMLElement} btn - The tab button element that was clicked.
+         */
+        function setActiveTab(btn) {
+            const tabsContainer = btn.closest('.tabs');
+            tabsContainer.querySelectorAll('button').forEach(b => {
+                b.classList.remove('active');
+                // Reset to default inactive tab appearance
+                b.style.backgroundColor = 'var(--clr-surface-a20)';
+                b.style.color = 'var(--clr-light-a0)';
+                b.style.borderColor = 'var(--clr-surface-tonal-a20)';
+            });
+            btn.classList.add('active');
+            const severity = btn.dataset.sev.toLowerCase();
+            // Apply active styling based on severity
+            btn.style.backgroundColor = severityColors[severity] || 'var(--clr-primary-a0)';
+            btn.style.color = severityTextColors[severity] || 'var(--clr-light-a0)';
+            btn.style.borderColor = severityColors[severity] || 'var(--clr-primary-a0)';
+        }
+
+        // Add event listeners to all alert filter tab buttons.
+        document.querySelectorAll('[id^="tabs-"] button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const toolbar = btn.closest('.alerts-toolbar');
+                const ip = toolbar.closest('.detail').id.replace('detail-', '');
+                const searchInput = toolbar.querySelector('.alerts-search input');
+                const searchText = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+                setActiveTab(btn);
+                filterAlerts(ip, searchText); // Re-filter alerts when a new tab is selected
+            });
+        });
+
+        /**
+         * Filters the list of alerts based on the active severity tab and search text.
+         * @param {string} ip - The IP address context for the alerts.
+         * @param {string} text - The search text to filter by.
+         */
+        function filterAlerts(ip, text) {
+            const listContainer = document.getElementById('alerts-list-' + ip);
+            if (!listContainer) return;
+
+            const lc = text.toLowerCase();
+            const tabsContainer = document.getElementById('tabs-' + ip);
+            const activeTabButton = tabsContainer ? tabsContainer.querySelector('button.active') : null;
+            if (!activeTabButton) return;
+
+            const activeTabSeverity = activeTabButton.dataset.sev;
+            let visibleCount = 0;
+            const allAlertItems = listContainer.querySelectorAll('.accordion-item');
+
+            allAlertItems.forEach(item => {
+                const itemSeverity = item.dataset.severity;
+                const severityMatch = activeTabSeverity === 'All' || itemSeverity === activeTabSeverity;
+                // Check if item's text content (title, description, etc.) includes the search text
+                const textMatch = item.innerText.toLowerCase().includes(lc);
+
+                if (severityMatch && textMatch) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Display a message if no alerts match the current filter, but only if there were alerts to begin with.
+            let noResultsMessage = listContainer.querySelector('.no-data-filter');
+            // Create message element only if needed and not already present, and if there were items to filter initially
+            if (!noResultsMessage && allAlertItems.length > 0) {
+                noResultsMessage = document.createElement('p');
+                noResultsMessage.className = 'no-data no-data-filter';
+                listContainer.appendChild(noResultsMessage);
+            }
+
+            if (noResultsMessage) {
+                if (visibleCount === 0 && allAlertItems.length > 0) {
+                    noResultsMessage.textContent = 'No alerts match your current filter.';
+                    noResultsMessage.style.display = 'block';
+                } else {
+                    noResultsMessage.style.display = 'none';
+                }
+            }
+        }
+
+        /**
+         * Toggles the visibility of a generic section's content and updates its title's 'open' state.
+         * @param {string} sectionContentId - The ID of the section's content div.
+         * @param {HTMLElement} sectionTitleElement - The section's title element that was clicked.
+         */
+        function toggleSectionContent(sectionContentId, sectionTitleElement) {
+            const sectionContent = document.getElementById(sectionContentId);
+            if (sectionContent && sectionTitleElement) {
+                const isOpenCurrently = sectionContent.style.display === "block";
+                sectionContent.style.display = isOpenCurrently ? "none" : "block";
+                sectionTitleElement.classList.toggle('open', !isOpenCurrently); // Set 'open' if it's now open
+            }
+        }
+
+        /**
+         * Sets the initial display state of a section and its corresponding arrow.
+         * @param {string} sectionContentId - The ID of the section's content div.
+         * @param {boolean} shouldBeOpen - True if the section should be open, false if collapsed.
+         */
+        function setSectionState(sectionContentId, shouldBeOpen) {
+            const sectionContent = document.getElementById(sectionContentId);
+            if (sectionContent) {
+                const sectionTitle = sectionContent.previousElementSibling; // Assumes .section-title is immediate sibling
+                sectionContent.style.display = shouldBeOpen ? "block" : "none";
+                if (sectionTitle) {
+                    sectionTitle.classList.toggle('open', shouldBeOpen);
+                }
+            }
+        }
+
+        // Sets initial states when the DOM is fully loaded.
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize any detail panel that might be marked 'active' on load (though typically none are).
+            document.querySelectorAll('.detail.active').forEach(activeDetailPanel => {
+                const ip = activeDetailPanel.id.replace('detail-', '');
+                showDetail(ip); // Re-run showDetail to ensure consistent state initialization
+            });
+
+            // Ensure all other detail panels have their sections correctly initialized
+            // This primarily makes them start collapsed if a detail panel is not active.
+            document.querySelectorAll('.detail:not(.active)').forEach(detailPanel => {
+                 const ip = detailPanel.id.replace('detail-', '');
+                 setSectionState('os-content-' + ip, false);
+                 setSectionState('ports-content-' + ip, false);
+                 setSectionState('alerts-panel-' + ip, false);
+            });
+        });
+    </script>
 </body>
 </html>
