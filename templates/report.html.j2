@@ -163,8 +163,11 @@
         table.summary tr:last-child td {
             border-bottom: 0; /* Removes bottom border from the last row for cleaner look with border-radius */
         }
+        table.summary tr {
+            transition: background-color 0.18s, color 0.18s;
+        }
         table.summary tr:hover {
-            background: var(--clr-primary-a10) !important; /* !important to override potential nth-child */
+            background: var(--clr-surface-tonal-a10) !important; /* !important to override potential nth-child */
             cursor: pointer;
         }
         /* Apply border-radius to corner cells */
@@ -188,7 +191,6 @@
             display: block; /* Class added by JS to show the panel */
         }
         .detail h2 {
-            font-family: 'IBM Plex Mono', monospace;
             margin-top: 0;
             color: var(--clr-accent-teal-a20);
         }
@@ -445,7 +447,7 @@
                         {% elif (entry.alerts|selectattr('severity.label','equalto','Medium')|list|length) > 0 %}badge-medium
                         {% elif (entry.alerts|selectattr('severity.label','equalto','Low')|list|length) > 0 %}badge-low
                         {% elif entry.alerts|length > 0 %}badge-informational
-                        {% else %}badge-all{% endif %}">
+                        {% else %}badge-context{% endif %}">
                         {{ entry.alerts|length }}
                     </span>
                 </td>
@@ -458,10 +460,17 @@
     {% for entry in results %}
     {% set d = entry.device %}
     <div id="detail-{{ d.ip }}" class="detail">
-        <h2>{{ d.ip }} ({{ d.hostname or 'N/A' }})</h2>
-        <p><strong>Status:</strong> {{ d.status }} |
-            <strong>Uptime:</strong> {{ d.uptime_seconds | default('Unknown', true) }}s |
-            <strong>Last Boot:</strong> {{ d.last_boot | default('Unknown', true) }}</p>
+        <h2>
+            {{ d.ip }}
+            {% if d.hostname %}
+            ({{ d.hostname }})
+            {% endif %}
+        </h2>
+        <div style="display: flex; gap: 2rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
+            <div><strong>Status:</strong> {{ d.status }}</div>
+            <div><strong>Uptime:</strong> {{ d.uptime_seconds | default('Unknown', true) }} s</div>
+            <div><strong>Last Boot:</strong> {{ d.last_boot | default('Unknown', true) }}</div>
+        </div>
 
         {# OS Matches Section - Collapsible #}
         <div class="section-title" onclick="toggleSectionContent('os-content-{{ d.ip }}', this)">
@@ -472,16 +481,30 @@
         </div>
         <div id="os-content-{{ d.ip }}" class="section-content" style="display: none;">
             {% if d.os_matches %}
-            <ul>
-                {% for os in d.os_matches %}
-                <li>
-                    <strong>{{ os.name }}</strong> ({{ os.accuracy }}%)<br>
-                    {% for cls in os.osclasses %}
-                    <small>{{ cls.type }} / {{ cls.vendor }} {{ cls.osfamily }} {{ cls.osgen or '' }}</small><br>
+            <table class="inner">
+                <thead>
+                    <tr>
+                        <th>OS Name</th>
+                        <th>Accuracy</th>
+                        <th>Class</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for os in d.os_matches %}
+                    <tr>
+                        <td><strong>{{ os.name }}</strong></td>
+                        <td>{{ os.accuracy }}%</td>
+                        <td>
+                            {% for cls in os.osclasses %}
+                                <span class="badge badge-informational"">
+                                    {{ cls.type }}/{{ cls.vendor }} {{ cls.osfamily }} {{ cls.osgen or '' }}
+                                </span>
+                            {% endfor %}
+                        </td>
+                    </tr>
                     {% endfor %}
-                </li>
-                {% endfor %}
-            </ul>
+                </tbody>
+            </table>
             {% else %}
             <p class="no-data">No OS match.</p>
             {% endif %}
@@ -576,10 +599,22 @@
                             {% endif %}
 
                             {# Specific details based on alert source type #}
-                            {% if a.source == AlertSource.MONIOTS %}
+                            {% if a.source == AlertSource.CREDS %}
                                 <p><strong>Service:</strong> {{ a.service.value }}</p>
                                 <p><strong>Username:</strong> {{ a.username }}</p>
                                 <p><strong>Password:</strong> {{ a.password }}</p>
+                            {% elif a.source == AlertSource.INSECURE_SRV %}
+                                <p><strong>Default Port:</strong> {{ a.default_port }}</p>
+                                <p><strong>Inherently Insecure:</strong> {{ a.Inherently_insecure }}</p>
+                            {% elif a.source == AlertSource.CERTIFICATE %}
+                                <p><strong>Issuer:</strong> {{ a.issuer }}</p>
+                                <p><strong>Subject:</strong> {{ a.subject }}</p>
+                                <p><strong>Valid From:</strong> {{ a.valid_from }}</p>
+                                <p><strong>Valid To:</strong> {{ a.valid_to }}</p>
+                            {% elif a.source == AlertSource.VULNERABILITY %}
+                                <p><strong>CVE ID:</strong> {{ a.cve_id }}</p>
+                                <p><strong>Description:</strong> {{ a.description | replace('\n', '<br>') | safe }}</p>
+                                {% if a.cvss_score %}<p><strong>CVSS Score:</strong> {{ a.cvss_score }}</p>{% endif %}
                             {% elif a.source == AlertSource.EXPLOITDB %}
                                 <p><strong>ExploitDB ID:</strong> {{ a.edb_id }}</p>
                                 <p><strong>Verified:</strong> {{ 'Yes' if a.verified else 'No' }}</p>
