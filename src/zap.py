@@ -6,7 +6,7 @@ from zapv2 import ZAPv2
 import models
 
 
-def scan_web_apps(
+def run_zap(
     devices: list[models.Device],
     zap_api_key: str,
     local_zap_proxy: str,
@@ -37,9 +37,7 @@ def scan_web_apps(
         alerts[device] = _parse_zap_alerts(zap.core.alerts(baseurl=url))
 
         # Filter alerts by severity.
-        alerts[device] = [
-            a for a in alerts[device] if models.Severity(a.severity) >= severity
-        ]
+        alerts[device] = [a for a in alerts[device] if a.severity >= severity]
 
     return alerts
 
@@ -61,7 +59,7 @@ def _parse_zap_alerts(zap_alerts: list[dict]) -> list[models.ZAPAlert]:
     return [
         models.ZAPAlert(
             source=models.AlertSource.ZAP,
-            severity=models.Severity(a["risk"]),
+            severity=models.Severity.from_label(a["risk"]),
             title=a.get("name", "Untitled"),
             description=a.get("description", "No description"),
             cwe_ids=[a["cweid"]],

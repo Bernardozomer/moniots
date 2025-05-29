@@ -28,19 +28,6 @@ def parse_device_info(hosts: list["PortScannerHostDict"]) -> list[models.Device]
         uptime_seconds = host.get("uptime", {}).get("seconds")
         last_boot = host.get("uptime", {}).get("lastboot")
 
-        # Parse open ports.
-        open_ports: list[models.PortInfo] = [
-            models.PortInfo(
-                port=port,
-                state=details.get("state", ""),
-                service=details.get("name", ""),
-                product=details.get("product", ""),
-                version=details.get("version", ""),
-                cpe=details.get("cpe", ""),
-            )
-            for port, details in host.get("tcp", {}).items()
-        ]
-
         # Parse OS matches.
         os_matches: list[models.OSMatch] = []
         for match in host.get("osmatch", []):
@@ -66,7 +53,21 @@ def parse_device_info(hosts: list["PortScannerHostDict"]) -> list[models.Device]
         # Sort OS matches by accuracy and limit to top 3.
         os_matches = sorted(os_matches, key=lambda m: int(m.accuracy), reverse=True)[:3]
 
-        # Create device model instance.
+        # Parse open ports and vulners alerts.
+        open_ports = []
+
+        open_ports: list[models.PortInfo] = [
+            models.PortInfo(
+                port=port,
+                state=details.get("state", ""),
+                service=details.get("name", ""),
+                product=details.get("product", ""),
+                version=details.get("version", ""),
+                cpe=details.get("cpe", ""),
+            )
+            for port, details in host.get("tcp", {}).items()
+        ]
+
         devices.append(
             models.Device(
                 ip=ip,

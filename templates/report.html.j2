@@ -243,10 +243,11 @@
     <div class="alerts-toolbar">
       <div class="tabs" id="tabs-{{ d.ip }}">
         {% set sev_counts = {'All': entry.alerts|length, 
-                 'High': entry.alerts|selectattr('severity.value','equalto','High')|list|length,
-                 'Medium': entry.alerts|selectattr('severity.value','equalto','Medium')|list|length,
-                 'Low': entry.alerts|selectattr('severity.value','equalto','Low')|list|length,
-                 'Informational': entry.alerts|selectattr('severity.value','equalto','Informational')|list|length } %}
+                 'Critical': entry.alerts|selectattr('severity.label','equalto','Critical')|list|length,
+                 'High': entry.alerts|selectattr('severity.label','equalto','High')|list|length,
+                 'Medium': entry.alerts|selectattr('severity.label','equalto','Medium')|list|length,
+                 'Low': entry.alerts|selectattr('severity.label','equalto','Low')|list|length,
+                 'Informational': entry.alerts|selectattr('severity.label','equalto','Informational')|list|length } %}
         {% for sev, cnt in sev_counts.items() %}
         <button class="{{ 'active' if loop.first else '' }}" data-sev="{{ sev }}">{{ sev }}<span class="badge">{{ cnt }}</span></button>
         {% endfor %}
@@ -261,13 +262,13 @@
       {% for a in entry.alerts
           | sort(attribute='severity')
           | sort(attribute='title') %}
-      <div class="accordion-item" data-severity="{{ a.severity.value }}">
+      <div class="accordion-item" data-severity="{{ a.severity.label }}">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <div class="alert-header">
             <div class="arrow"></div>
             <div>{{ a.title }}</div>
             <span class="badge">{{ a.source.value }}</span>
-            <span class="badge">{{ a.severity.value }}</span>
+            <span class="badge">{{ a.severity.label }}</span>
             {# show all CWE IDs #}
             {% if a.cwe_ids %}
               {% for cw in a.cwe_ids %}
@@ -294,20 +295,13 @@
           {% elif a.source == AlertSource.EXPLOITDB %}
             {# ExploitDBAlert #}
             <p><strong>ExploitDB ID:</strong> {{ a.edb_id }}</p>
+            <p><strong>Verified:</strong> {{ 'Yes' if a.verified else 'No' }}</p>
             <p><strong>Port:</strong> {{ a.port }}</p>
             <p><strong>Type:</strong> {{ a.type }}</p>
             <p><strong>Platform:</strong> {{ a.platform }}</p>
             <p><strong>Author:</strong> {{ a.author }}</p>
             <p><strong>Date:</strong> {{ a.date }}</p>
-            <p><strong>Verified:</strong> {{ 'Yes' if a.verified else 'No' }}</p>
             <p><strong>Source:</strong> {{ a.edb_source }}</p>
-            <p><strong>Download:</strong>
-              {% if a.file_url %}
-                <a href="{{ a.file_url }}" target="_blank">{{ a.file_url }}</a>
-              {% else %}
-                —
-              {% endif %}
-            </p>
 
           {% elif a.source == AlertSource.ZAP %}
             {# ZAPAlert #}
@@ -316,6 +310,26 @@
             <p><strong>Parameter:</strong> {{ a.parameter or '—' }}</p>
             <p><strong>Evidence:</strong> {{ a.evidence or '—' }}</p>
             <p><strong>Confidence:</strong> {{ a.confidence.value }}</p>
+
+          {% elif a.source == AlertSource.VULNERS %}
+            {# VulnersAlert #}
+            <p><strong>Port:</strong> {{ a.port }}</p>
+            <p><strong>CPE:</strong> {{ a.cpe }}</p>
+            <p><strong>Exploit ID:</strong> {{ a.exploit_id or '—' }}</p>
+            <p><strong>CVSS:</strong> {{ a.cvss }}</p>
+            <p><strong>URL:</strong>
+              {% if a.file_url %}
+                <a href="{{ a.url }}" target="_blank">{{ a.url }}</a>
+              {% else %}
+                —
+              {% endif %}
+            </p>
+          
+          {% elif a.source == AlertSource.NVD %}
+            {# NVDAlert #}
+            <p><strong>Source:</strong> {{ a.nvd_source }}</p>
+            <p><strong>Date:</strong> {{ a.date }}</p>
+            <p><strong>URL:</strong> <a href="{{ a.url }}" target="_blank">{{ a.url }}</a></p>
           {% endif %}
 
           <p><strong>Remediation:</strong> {{ a.remediation or '—' }}</p>

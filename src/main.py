@@ -3,12 +3,13 @@
 import argparse
 from datetime import datetime as dt
 
-import analysis
+import exploitdb
 import creds
 import discovery
 import models
+import nvd
 import report
-import webapp
+import zap
 
 
 def main():
@@ -42,25 +43,36 @@ def run_tests(
     cred_alerts = creds.batch_test_common_credentials(devices)
 
     # Scan for web application vulnerabilities.
+    # Filter devices to only those with HTTP/HTTPS services.
     http_devices = [
         d for d in devices if any(p.service in ["http", "https"] for p in d.open_ports)
     ]
 
-    zap_alerts = webapp.scan_web_apps(
+    zap_alerts = zap.run_zap(
         http_devices,
         args.zap_api_key,
         args.local_zap_proxy,
-        models.Severity(args.severity.title()),
+        models.Severity.from_label(args.severity),
     )
 
     # Scan for product exploits.
-    exploit_alerts = analysis.batch_searchsploit(devices)
+    exploitdb_alerts = exploitdb.batch_query_exploitdb(devices)
 
-    # Merge alert results.
-    return {
-        d: cred_alerts.get(d, []) + zap_alerts.get(d, []) + exploit_alerts.get(d, [])
-        for d in devices
-    }  # type: ignore -- type checker may not understand alert subclasses.
+    # Query NVD for CVEs.
+    nvd_alerts = nvd.batch_query_nvd(devices, nvd_api_key=args.nvd_api_key)
+
+    # Merge alert results using a helper function.
+    return merge_alerts(devices, cred_alerts, zap_alerts, exploitdb_alerts, nvd_alerts)
+
+
+def merge_alerts(devices, *alert_dicts):
+    """Merge alerts from multiple sources."""
+
+    merge = lambda device: [
+        alert for source in alert_dicts for alert in source.get(device, [])
+    ]
+
+    return {device: merge(device) for device in devices}
 
 
 def setup_args() -> argparse.Namespace:
@@ -80,9 +92,9 @@ def setup_args() -> argparse.Namespace:
         "--severity",
         dest="severity",
         type=lambda s: s.lower(),
-        choices=[s.value.lower() for s in models.Severity],
-        default=models.Severity.LOW.value.lower(),
-        help=f"Minimum severity level of alerts to include ({', '.join(s.value.lower() for s in models.Severity)})",
+        choices=[s.label.lower() for s in models.Severity],
+        default=models.Severity.LOW.label.lower(),
+        help=f"Minimum severity level of alerts to include",
     )
 
     parser.add_argument(
@@ -97,6 +109,13 @@ def setup_args() -> argparse.Namespace:
         dest="local_zap_proxy",
         default=None,
         help="Local ZAP proxy (e.g. http://127.0.0.1:8080)",
+    )
+
+    parser.add_argument(
+        "--nvd-api-key",
+        dest="nvd_api_key",
+        default=None,
+        help="NVD API key for CVE queries (optional, heavily reduces NVD query time)",
     )
 
     return parser.parse_args()
