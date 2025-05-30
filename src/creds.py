@@ -6,8 +6,7 @@ from typing import Callable
 
 import models
 
-RES_DIR = "./res"
-COMMON_CREDENTIALS = f"{RES_DIR}/common_credentials.csv"
+COMMON_CREDENTIALS = f"{models.RES_DIR}/common_credentials.csv"
 
 
 def batch_test_common_credentials(
@@ -41,19 +40,17 @@ def test_common_credentials(
     """Attempt to connect to a device with multiple sets of common credentials."""
     alerts = []
 
-    def check_and_alert(
-        service: models.Service, connect_func: Callable[[str, str], bool]
-    ):
+    def check_and_alert(service: str, connect_func: Callable[[str, str], bool]):
         """Check device credentials and create alerts if common credentials are found."""
         for user, pwd in creds:
             try:
                 if connect_func(user, pwd):
                     alerts.append(
                         models.CommonCredentialsAlert(
-                            source=models.AlertSource.CREDENTIALS,
+                            source=models.AlertSource.CREDS,
                             severity=models.Severity.CRITICAL,
                             title=f"Common {service} Credentials",
-                            description=f"Device is using easily guessable {service.value} credentials.",
+                            description=f"Device is using easily guessable {service} credentials.",
                             cwe_ids=[521, 798, 1392],
                             cve_ids=None,
                             remediation="Change device credentials.",
@@ -81,7 +78,7 @@ def test_common_credentials(
         return r.status_code == 200
 
     # Run checks for all services.
-    check_and_alert(models.Service.SSH, ssh_connect)
-    check_and_alert(models.Service.HTTP, http_connect)
+    check_and_alert("ssh", ssh_connect)
+    check_and_alert("http", http_connect)
 
     return alerts

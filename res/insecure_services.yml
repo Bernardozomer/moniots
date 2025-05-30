@@ -1,0 +1,147 @@
+services:
+  # Aliases.
+  ## Used for services that are insecure by default, and their standard port is a common target.
+  - &insecure_on_default_port
+    note: This protocol/version is insecure. Its default port is well-known and frequently scanned by attackers.
+
+  ## Used for services that are insecure by default, running on a non-standard port.
+  - &insecure_on_other_port
+    port: -1 # Represents any non-default port for this service.
+    note: This protocol/version is insecure. Running on a non-default port offers minor obscurity but does not fix underlying security issues.
+
+  ## Used for secure services whose default port is often targeted, and changing it is a common hardening recommendation.
+  - &secure_on_default_port_change_recommended
+    note: This protocol is secure, but its default port is heavily targeted.
+
+  # Services.
+  ## Secure services where changing the default port is often recommended.
+  - name: ssh
+    severity: MEDIUM
+    description: Secure Shell. Encrypted remote login, file transfer (SFTP), and tunneling.
+    cwe_ids: [] # SSH itself is secure; CWEs would apply to misconfigurations or vulnerable versions.
+    remediation: This protocol is secure, but consider changing the default port as part of a defense-in-depth strategy.
+    ports:
+      - <<: *secure_on_default_port_change_recommended
+        port: 22
+
+  ## Inherently insecure services.
+  - name: telnet
+    severity: CRITICAL
+    description: Unencrypted remote login protocol. Transmits credentials and data in plaintext.
+    cwe_ids:
+      - 319 # Cleartext Transmission of Sensitive Information
+      - 522 # Insufficiently Protected Credentials
+      - 642 # External Control of Critical State Data
+    remediation: Disable Telnet. Use SSH instead for secure remote access.
+    ports:
+      - <<: *insecure_on_default_port
+        port: 23
+      - *insecure_on_other_port
+
+  - name: ftp
+    severity: CRITICAL
+    description: File Transfer Protocol. Transmits credentials and data in plaintext.
+    cwe_ids:
+      - 319 # Cleartext Transmission of Sensitive Information
+      - 522 # Insufficiently Protected Credentials
+      - 552 # Files or Directories Accessible to External Parties
+      - 287 # Improper Authentication
+    remediation: Disable FTP. Use SFTP (SSH File Transfer Protocol) or FTPS (FTP over SSL/TLS) for secure file transfers.
+    ports:
+      - <<: *insecure_on_default_port
+        port: 21
+      - *insecure_on_other_port
+
+  - name: http
+    severity: HIGH
+    description: Hypertext Transfer Protocol. Transmits data in plaintext.
+    cwe_ids:
+      - 319 # Cleartext Transmission of Sensitive Information
+      - 311 # Missing Encryption of Sensitive Data
+      - 1428 # Reliance on HTTP instead of HTTPS
+    remediation: Use HTTPS (HTTP Secure, typically on port 443) for all web traffic to ensure encryption.
+    ports:
+      - <<: *insecure_on_default_port
+        port: 80
+      - *insecure_on_other_port
+
+  - name: finger
+    severity: MEDIUM
+    description: User information protocol. Can expose sensitive user information.
+    cwe_ids:
+      - 200 # Exposure of Sensitive Information to an Unauthorized Actor
+    remediation: Disable this service unless absolutely necessary and understand the information exposure risks.
+    ports:
+      - <<: *insecure_on_default_port
+        port: 79
+      - *insecure_on_other_port
+
+  - name: smtp
+    severity: CRITICAL
+    description: SMTP without TLS is unencrypted, highly vulnerable, and often blocked or used for spam relay.
+    cwe_ids:
+      - 319 # Cleartext Transmission of Sensitive Information
+      - 522 # Insufficiently Protected Credentials (if auth is used over cleartext)
+      - 306 # Missing Authentication for Critical Function (e.g., open relay)
+      - 287 # Improper Authentication
+    remediation: Use SMTPS (typically on port 465, Nmap service 'smtps') or SMTP with enforced STARTTLS (typically on port 587) for secure email transmission.
+    ports:
+      - <<: *insecure_on_default_port
+        port: 25
+      - <<: *insecure_on_default_port
+        port: 587
+      - <<: *insecure_on_other_port
+
+  - name: pop3
+    severity: CRITICAL
+    description: Post Office Protocol version 3. Retrieves email, typically unencrypted in this form.
+    cwe_ids:
+      - 319 # Cleartext Transmission of Sensitive Information
+      - 522 # Insufficiently Protected Credentials
+    remediation: Use POP3S (POP3 over SSL/TLS, typically on port 995) for encrypted email retrieval.
+    ports:
+      - <<: *insecure_on_default_port
+        port: 110
+      - <<: *insecure_on_other_port
+
+  - name: imap
+    severity: CRITICAL
+    description: Internet Message Access Protocol. Credentials and emails can be transmitted in plaintext.
+    cwe_ids:
+      - 319 # Cleartext Transmission of Sensitive Information
+      - 522 # Insufficiently Protected Credentials
+    remediation: Use IMAPS (IMAP over SSL/TLS, typically on port 993) or IMAP with enforced STARTTLS for encrypted email access.
+    ports:
+      - <<: *insecure_on_default_port
+        port: 143
+      - <<: *insecure_on_other_port
+
+  - name: ldap
+    severity: CRITICAL
+    description: Lightweight Directory Access Protocol. Credentials and directory data can be transmitted in plaintext.
+    cwe_ids:
+      - 319 # Cleartext Transmission of Sensitive Information
+      - 522 # Insufficiently Protected Credentials
+      - 287 # Improper Authentication
+    remediation: Use LDAPS (LDAP over SSL/TLS, typically on port 636) or LDAP with enforced STARTTLS for secure directory access.
+    ports:
+      - <<: *insecure_on_default_port
+        port: 389
+      - <<: *insecure_on_other_port
+
+  ## Services that have secure and insecure versions.
+  - name: snmp
+    severity: HIGH # Defaulting to HIGH as a precaution, as v1/v2c are common.
+    description: Simple Network Management Protocol. SNMPv1 and SNMPv2c are insecure due to plaintext community strings and lack of encryption. SNMPv3 offers security features.
+    cwe_ids:
+      - 798 # Use of Hard-coded Credentials (for default/weak community strings)
+      - 287 # Improper Authentication
+      - 200 # Exposure of Sensitive Information to an Unauthorized Actor
+      - 319 # Cleartext Transmission of Sensitive Information (for v1/v2c data)
+    remediation: MUST use SNMPv3 with strong authentication (e.g., SHA) and privacy (e.g., AES) - 'authPriv' security level. Change default community strings if forced to use v1/v2c (not recommended). Use strong, unique community strings/credentials. Implement ACLs to restrict access to trusted management stations. Disable SNMP if not essential.
+    ports:
+      - <<: *insecure_on_default_port
+        port: 161
+      - <<: *insecure_on_default_port # SNMP Trap
+        port: 162
+      - <<: *insecure_on_other_port

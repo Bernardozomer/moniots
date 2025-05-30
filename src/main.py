@@ -6,6 +6,7 @@ from datetime import datetime as dt
 import exploitdb
 import creds
 import discovery
+import insecure_srv
 import models
 import nvd
 import report
@@ -17,6 +18,7 @@ def main():
     args = setup_args()
 
     # Discover and parse devices.
+    print("Scanning network:", args.network)
     scanned_hosts = discovery.discover_devices(args.network)
     devices = discovery.parse_device_info(scanned_hosts)
 
@@ -40,7 +42,12 @@ def run_tests(
 ) -> dict[models.Device, list[models.Alert]]:
     """Run vulnerability tests on devices and return structured results."""
     # Test for common credentials.
+    print("Testing common credentials...")
     cred_alerts = creds.batch_test_common_credentials(devices)
+
+    # Test for insecure services.
+    print("Testing for insecure services...")
+    insecure_srv_alerts = insecure_srv.batch_test_insecure_services(devices)
 
     # Scan for web application vulnerabilities.
     # Filter devices to only those with HTTP/HTTPS services.
@@ -48,6 +55,7 @@ def run_tests(
         d for d in devices if any(p.service in ["http", "https"] for p in d.open_ports)
     ]
 
+    print("Running OWASP ZAP scans on HTTP devices...")
     zap_alerts = zap.run_zap(
         http_devices,
         args.zap_api_key,
@@ -56,13 +64,22 @@ def run_tests(
     )
 
     # Scan for product exploits.
+    print("Querying ExploitDB for known vulnerabilities...")
     exploitdb_alerts = exploitdb.batch_query_exploitdb(devices)
 
     # Query NVD for CVEs.
+    print("Querying NVD for CVEs...")
     nvd_alerts = nvd.batch_query_nvd(devices, nvd_api_key=args.nvd_api_key)
 
     # Merge alert results using a helper function.
-    return merge_alerts(devices, cred_alerts, zap_alerts, exploitdb_alerts, nvd_alerts)
+    return merge_alerts(
+        devices,
+        cred_alerts,
+        insecure_srv_alerts,
+        zap_alerts,
+        exploitdb_alerts,
+        nvd_alerts,
+    )
 
 
 def merge_alerts(devices, *alert_dicts):

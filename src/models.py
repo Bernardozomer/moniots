@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
+RES_DIR = "./res"
+
 
 @dataclass(frozen=True)
 class OSClass:
@@ -52,11 +54,6 @@ class Device:
 
     def __hash__(self):
         return hash(self.ip)
-
-
-class Service(Enum):
-    SSH = "SSH"
-    HTTP = "HTTP"
 
 
 class Severity(Enum):
@@ -111,7 +108,8 @@ class Severity(Enum):
 
 
 class AlertSource(Enum):
-    CREDENTIALS = "Moniots"
+    CREDS = "Moniots Creds"
+    INSECURE_SRV = "Moniots Insecure Services"
     ZAP = "OWASP Zap"
     EXPLOITDB = "ExploitDB"
     NVD = "NVD"
@@ -136,7 +134,7 @@ class Alert:
 
 @dataclass
 class CommonCredentialsAlert(Alert):
-    service: Service
+    service: str
     username: str
     password: str
 
@@ -168,3 +166,8 @@ class NVDAlert(Alert):
     nvd_source: str
     date: str
     url: str
+
+
+@dataclass
+class InsecureServiceAlert(Alert):
+    pass

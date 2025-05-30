@@ -1,0 +1,83 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import yaml
+
+import models
+
+INSECURE_SERVICES = f"{models.RES_DIR}/insecure_services.yml"
+
+
+def batch_test_insecure_services(
+    devices: list[models.Device],
+) -> dict[models.Device, list[models.InsecureServiceAlert]]:
+    """Check devices for insecure services in parallel."""
+    # Load insecure services from YAML file.
+    insecure_services = _load_insecure_services()
+
+    # Check each device for insecure services.
+    results = {}
+    with ThreadPoolExecutor() as pool:
+        future_to_device = {
+            pool.submit(test_insecure_services, dev, insecure_services): dev
+            for dev in devices
+        }
+
+        for fut in as_completed(future_to_device):
+            device = future_to_device[fut]
+            alerts = fut.result()
+            results[device] = alerts
+
+    return results
+
+
+def test_insecure_services(
+    device: models.Device, insecure_services: dict[str, dict[str, str]]
+) -> list[models.InsecureServiceAlert]:
+    """Check device for insecure services."""
+    alerts = []
+
+    for port_info in device.open_ports:
+        service_name = port_info.service.lower()
+
+        service = insecure_services.get(service_name)
+        if not service:
+            continue
+
+        # Find the first matching port entry (by port or wildcard).
+        match = next(
+            (
+                entry
+                for entry in service["ports"]
+                if entry["port"] == port_info.port or entry["port"] == -1  # type: ignore
+            ),
+            None,
+        )
+
+        if not match:
+            continue
+
+        description = f"{service["description"]} {match["note"]}"  # type: ignore
+
+        alerts.append(
+            models.InsecureServiceAlert(
+                source=models.AlertSource.INSECURE_SRV,
+                severity=models.Severity[service["severity"]],
+                title=f"Insecure service: {service_name}",
+                description=description,
+                cwe_ids=service["cwe_ids"],  # type: ignore
+                cve_ids=None,
+                remediation=service["remediation"],
+            )
+        )
+
+    return alerts
+
+
+def _load_insecure_services() -> dict[str, dict]:
+    """Load insecure services from a YAML file."""
+    yaml.SafeDumper.ignore_aliases = lambda *_, **__: True
+
+    with open(INSECURE_SERVICES, "r") as file:
+        data = yaml.safe_load(file)["services"]
+
+    # Skip YAML aliases ("services" without a "name" key).
+    return {s["name"]: s for s in data if "name" in s}

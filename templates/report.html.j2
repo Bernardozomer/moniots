@@ -604,12 +604,11 @@
 
                             {# Specific details based on alert source type #}
                             {% if a.source == AlertSource.CREDS %}
-                                <p><strong>Service:</strong> {{ a.service.value }}</p>
+                                <p><strong>Service:</strong> {{ a.service }}</p>
                                 <p><strong>Username:</strong> {{ a.username }}</p>
                                 <p><strong>Password:</strong> {{ a.password }}</p>
                             {% elif a.source == AlertSource.INSECURE_SRV %}
-                                <p><strong>Default Port:</strong> {{ a.default_port }}</p>
-                                <p><strong>Inherently Insecure:</strong> {{ a.Inherently_insecure }}</p>
+                                <!-- No additional details for INSECURE_SRV alerts -->
                             {% elif a.source == AlertSource.CERTIFICATE %}
                                 <p><strong>Issuer:</strong> {{ a.issuer }}</p>
                                 <p><strong>Subject:</strong> {{ a.subject }}</p>
