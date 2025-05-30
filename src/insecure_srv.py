@@ -63,7 +63,7 @@ def test_insecure_services(
                 severity=models.Severity[service["severity"]],
                 title=f"Insecure service: {service_name}",
                 description=description,
-                cwe_ids=None,  # TODO
+                cwe_ids=service["cwe_ids"],  # type: ignore
                 cve_ids=None,
                 remediation=service["remediation"],
             )
