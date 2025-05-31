@@ -4,6 +4,7 @@ from typing import Callable
 from zapv2 import ZAPv2
 
 import models
+from util import pbar
 
 
 def run_zap(
@@ -17,9 +18,8 @@ def run_zap(
     zap.pscan.enable_all_scanners()
     alerts = {}
 
-    for device in devices:
+    for device in pbar(devices, desc="Scanning web apps with OWASP ZAP"):
         ip = device.ip
-        print(f"Scanning {ip}...")
         session_name = f"moniots_{ip}"
         zap.core.new_session(session_name, overwrite=True)
         url = "http://" + ip
@@ -28,9 +28,23 @@ def run_zap(
         _sleep()
 
         # Perform the spider scan.
-        _run_scan(zap.spider.scan, zap.spider.status, url, recurse=True)
+        _run_scan(
+            zap.spider.scan,
+            zap.spider.status,
+            url,
+            f"Performing spider scan on {url}",
+            recurse=True,
+        )
+
         # Perform the active scan.
-        _run_scan(zap.ascan.scan, zap.ascan.status, url, recurse=True, postdata=True)
+        _run_scan(
+            zap.ascan.scan,
+            zap.ascan.status,
+            url,
+            f"Performing active scan on {url}",
+            recurse=True,
+            postdata=True,
+        )
 
         # Parse and store results.
         alerts[device] = _parse_zap_alerts(zap.core.alerts(baseurl=url))
@@ -38,16 +52,24 @@ def run_zap(
     return alerts
 
 
-def _run_scan(scan_func: Callable, status_func: Callable, url: str, **kwargs):
+def _run_scan(
+    scan_func: Callable, status_func: Callable, url: str, desc: str, **kwargs
+):
     """Run a ZAP scan and monitor its progress."""
     scan_id = scan_func(url, **kwargs)
     # Give the scanner a chance to start.
     _sleep()
 
-    while (progress := int(status_func(scan_id))) < 100:
-        # TODO: Replace with a progress bar.
-        print(f"Scan progress: {progress}%")
-        _sleep()
+    with pbar(total=100, desc=desc) as pb:
+        last_progress = 0
+
+        while (progress := int(status_func(scan_id))) < 100:
+            pb.update(progress - last_progress)
+            last_progress = progress
+            _sleep()
+
+        # Ensure the bar reaches 100%
+        pb.update(100 - last_progress)
 
 
 def _parse_zap_alerts(zap_alerts: list[dict]) -> list[models.ZAPAlert]:

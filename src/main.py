@@ -42,12 +42,13 @@ def run_tests(
 ) -> dict[models.Device, list[models.Alert]]:
     """Run vulnerability tests on devices and return structured results."""
     # Test for common credentials.
-    print("Testing common credentials...")
     cred_alerts = creds.batch_test_common_credentials(devices)
-
     # Test for insecure services.
-    print("Testing for insecure services...")
     insecure_srv_alerts = insecure_srv.batch_test_insecure_services(devices)
+    # Scan for product exploits.
+    exploitdb_alerts = exploitdb.batch_query_exploitdb(devices)
+    # Query NVD for CVEs.
+    nvd_alerts = nvd.batch_query_nvd(devices, nvd_api_key=args.nvd_api_key)
 
     # Scan for web application vulnerabilities.
     # Filter devices to only those with HTTP/HTTPS services.
@@ -55,20 +56,11 @@ def run_tests(
         d for d in devices if any(p.service in ["http", "https"] for p in d.open_ports)
     ]
 
-    print("Running OWASP ZAP scans on HTTP devices...")
     zap_alerts = zap.run_zap(
         http_devices,
         args.zap_api_key,
         args.local_zap_proxy,
     )
-
-    # Scan for product exploits.
-    print("Querying ExploitDB for known vulnerabilities...")
-    exploitdb_alerts = exploitdb.batch_query_exploitdb(devices)
-
-    # Query NVD for CVEs.
-    print("Querying NVD for CVEs...")
-    nvd_alerts = nvd.batch_query_nvd(devices, nvd_api_key=args.nvd_api_key)
 
     # Merge alert results.
     alerts = merge_alerts(
@@ -113,7 +105,7 @@ def setup_args() -> argparse.Namespace:
         dest="severity",
         type=lambda s: s.lower(),
         choices=[s.label.lower() for s in models.Severity],
-        default=models.Severity.LOW.label.lower(),
+        default=models.Severity.MEDIUM.label.lower(),
         help=f"Minimum severity level of alerts to include",
     )
 

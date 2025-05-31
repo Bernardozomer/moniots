@@ -5,6 +5,7 @@ from typing import Optional
 import nvdlib
 
 import models
+import util
 
 # Minimum delay between API calls to avoid rate limiting.
 MIN_API_DELAY = 0.6
@@ -14,25 +15,12 @@ def batch_query_nvd(
     devices: list[models.Device], nvd_api_key: Optional[str] = None
 ) -> dict[models.Device, list[models.NVDAlert]]:
     """Run find_cves_for_device in parallel over all devices."""
-    from concurrent.futures import ThreadPoolExecutor
-
-    results = {}
-
-    with ThreadPoolExecutor() as executor:
-        futures = {
-            executor.submit(query_nvd, device, nvd_api_key): device
-            for device in devices
-        }
-
-        for future in futures:
-            device = futures[future]
-            try:
-                results[device] = future.result()
-            except Exception as e:
-                print(f"Error processing {device}: {e}")
-                results[device] = []
-
-    return results
+    return util.batch_test(
+        devices,
+        "Querying NVD",
+        query_nvd,
+        nvd_api_key,
+    )
 
 
 def query_nvd(

@@ -1,12 +1,12 @@
 import csv
 import paramiko
 import requests
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Callable
 
 import models
+import util
 
-COMMON_CREDENTIALS = f"{models.RES_DIR}/common_credentials.csv"
+COMMON_CREDENTIALS = f"{util.RES_DIR}/common_credentials.csv"
 
 
 def batch_test_common_credentials(
@@ -19,23 +19,13 @@ def batch_test_common_credentials(
         reader = csv.reader(fp)
         creds = [(row[0], row[1]) for row in reader if len(row) >= 2]
 
-    # Attempt to connect to each device with each set of common credentials.
-    results = {}
-    with ThreadPoolExecutor() as pool:
-        future_to_device = {
-            pool.submit(test_common_credentials, dev.ip, creds): dev for dev in devices
-        }
-
-        for fut in as_completed(future_to_device):
-            device = future_to_device[fut]
-            findings = fut.result()
-            results[device] = findings
-
-    return results
+    return util.batch_test(
+        devices, "Testing for common credentials", test_common_credentials, creds
+    )
 
 
 def test_common_credentials(
-    ip: str, creds: list[tuple[str, str]], timeout_seconds: int = 5
+    device: models.Device, creds: list[tuple[str, str]], timeout_seconds: int = 5
 ):
     """Attempt to connect to a device with multiple sets of common credentials."""
     alerts = []
@@ -66,7 +56,7 @@ def test_common_credentials(
         """Attempt to connect via SSH with given credentials."""
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(ip, username=user, password=pwd, timeout=timeout_seconds)
+        ssh.connect(device.ip, username=user, password=pwd, timeout=timeout_seconds)
         ssh.close()
         return True
 
@@ -74,7 +64,7 @@ def test_common_credentials(
         """Attempt to connect via HTTP with given credentials."""
         s = requests.Session()
         payload = {"username": user, "password": pwd}
-        r = s.post(f"http://{ip}/login", data=payload, timeout=timeout_seconds)
+        r = s.post(f"http://{device.ip}/login", data=payload, timeout=timeout_seconds)
         return r.status_code == 200
 
     # Run checks for all services.

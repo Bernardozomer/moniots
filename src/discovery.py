@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import nmap
 
 import models
+from util import pbar
 
 if TYPE_CHECKING:
     from nmap import PortScannerHostDict

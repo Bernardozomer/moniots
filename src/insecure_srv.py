@@ -1,36 +1,30 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import yaml
 
 import models
+import util
 
-INSECURE_SERVICES = f"{models.RES_DIR}/insecure_services.yml"
+# NOTE: The type checker may not understand YAML's dynamic attributes,
+# so we use `# type: ignore` to suppress type errors.
+INSECURE_SERVICES = f"{util.RES_DIR}/insecure_services.yml"
 
 
 def batch_test_insecure_services(
     devices: list[models.Device],
 ) -> dict[models.Device, list[models.InsecureServiceAlert]]:
     """Check devices for insecure services in parallel."""
-    # Load insecure services from YAML file.
-    insecure_services = _load_insecure_services()
+    # Load service data.
+    services = _load_service_data()
 
-    # Check each device for insecure services.
-    results = {}
-    with ThreadPoolExecutor() as pool:
-        future_to_device = {
-            pool.submit(test_insecure_services, dev, insecure_services): dev
-            for dev in devices
-        }
-
-        for fut in as_completed(future_to_device):
-            device = future_to_device[fut]
-            alerts = fut.result()
-            results[device] = alerts
-
-    return results
+    return util.batch_test(
+        devices,
+        "Testing for insecure services",
+        test_insecure_services,
+        services,
+    )
 
 
 def test_insecure_services(
-    device: models.Device, insecure_services: dict[str, dict[str, str]]
+    device: models.Device, services: dict[str, dict[str, str]]
 ) -> list[models.InsecureServiceAlert]:
     """Check device for insecure services."""
     alerts = []
@@ -38,7 +32,7 @@ def test_insecure_services(
     for port_info in device.open_ports:
         service_name = port_info.service.lower()
 
-        service = insecure_services.get(service_name)
+        service = services.get(service_name)
         if not service:
             continue
 
@@ -72,7 +66,7 @@ def test_insecure_services(
     return alerts
 
 
-def _load_insecure_services() -> dict[str, dict]:
+def _load_service_data() -> dict[str, dict]:
     """Load insecure services from a YAML file."""
     yaml.SafeDumper.ignore_aliases = lambda *_, **__: True
 
