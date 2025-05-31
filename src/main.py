@@ -60,7 +60,6 @@ def run_tests(
         http_devices,
         args.zap_api_key,
         args.local_zap_proxy,
-        models.Severity.from_label(args.severity),
     )
 
     # Scan for product exploits.
@@ -71,8 +70,8 @@ def run_tests(
     print("Querying NVD for CVEs...")
     nvd_alerts = nvd.batch_query_nvd(devices, nvd_api_key=args.nvd_api_key)
 
-    # Merge alert results using a helper function.
-    return merge_alerts(
+    # Merge alert results.
+    alerts = merge_alerts(
         devices,
         cred_alerts,
         insecure_srv_alerts,
@@ -80,6 +79,10 @@ def run_tests(
         exploitdb_alerts,
         nvd_alerts,
     )
+
+    # Filter alerts by severity and return.
+    min_severity = models.Severity.from_label(args.severity)
+    return {d: [a for a in alerts[d] if a.severity >= min_severity] for d in alerts}
 
 
 def merge_alerts(devices, *alert_dicts):

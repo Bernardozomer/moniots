@@ -10,7 +10,6 @@ def run_zap(
     devices: list[models.Device],
     zap_api_key: str,
     local_zap_proxy: str,
-    severity: models.Severity,
 ) -> dict[models.Device, list[models.ZAPAlert]]:
     """Scan web applications for vulnerabilities using OWASP ZAP."""
     proxies = {"http": local_zap_proxy, "https": local_zap_proxy}
@@ -35,9 +34,6 @@ def run_zap(
 
         # Parse and store results.
         alerts[device] = _parse_zap_alerts(zap.core.alerts(baseurl=url))
-
-        # Filter alerts by severity.
-        alerts[device] = [a for a in alerts[device] if a.severity >= severity]
 
     return alerts
 
