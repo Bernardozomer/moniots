@@ -105,7 +105,7 @@ class Severity(Enum):
         return list(type(self)).index(self) >= list(type(self)).index(other)
 
 
-class AlertSource(Enum):
+class AlertSource(str, Enum):
     CREDS = "Moniots Creds"
     INSECURE_SRV = "Moniots Insecure Services"
     ZAP = "OWASP Zap"
@@ -113,7 +113,7 @@ class AlertSource(Enum):
     NVD = "NVD"
 
 
-class Confidence(Enum):
+class Confidence(str, Enum):
     LOW = "Low"
     MEDIUM = "Medium"
     HIGH = "High"

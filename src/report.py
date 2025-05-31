@@ -13,10 +13,17 @@ TEMPLATE_DIR = "./templates"
 REPORT_TEMPLATE = f"{TEMPLATE_DIR}/report.html.j2"
 
 
+class MoniotsJSONEnconder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, models.Severity):
+            return o.label
+        return super().default(o)
+
+
 def generate_json_report(results: dict[models.Device, list[models.Alert]]) -> str:
     """Generate a JSON report from the test results."""
     results_ = _results_to_dicts(results)
-    return json.dumps(results_, indent=2)
+    return json.dumps(results_, indent=2, cls=MoniotsJSONEnconder)
 
 
 def generate_html_report(
