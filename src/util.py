@@ -23,6 +23,6 @@ def batch_test(
     return results
 
 
-def pbar(iterable=None, desc=None, total=None, ncols=120, colour="green"):
+def pbar(iterable=None, desc=None, total=None, colour="green"):
     """A standard tqdm wrapper with common parameters."""
-    return tqdm(iterable, desc=desc, total=total, ncols=ncols, colour=colour)
+    return tqdm(iterable, desc=desc, total=total, colour=colour)
