@@ -1,7 +1,6 @@
 import yaml
 
-import models
-import util
+from . import models, util
 
 # NOTE: The type checker may not understand YAML's dynamic attributes,
 # so we use `# type: ignore` to suppress type errors.

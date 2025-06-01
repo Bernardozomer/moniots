@@ -3,7 +3,7 @@ from typing import Any, Callable
 
 from tqdm import tqdm
 
-import models
+from . import models
 
 RES_DIR = "./res"
 

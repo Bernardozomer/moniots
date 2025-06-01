@@ -3,8 +3,8 @@ from typing import Callable
 
 from zapv2 import ZAPv2
 
-import models
-from util import pbar
+from . import models
+from .util import pbar
 
 
 def run_zap(
