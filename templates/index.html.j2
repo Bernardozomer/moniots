@@ -109,14 +109,10 @@
             color: var(--clr-primary-a0);
             margin-bottom: 0.5rem;
         }
-         h2 { /* Added for section titles on this page */
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--clr-primary-a10);
-            margin-top: 2.5rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid var(--clr-primary-a30);
-            padding-bottom: 0.5rem;
+        
+        h2 {
+            color: var(--clr-primary-a20);
+            margin-top: 0;
         }
 
         .subtitle {
@@ -125,6 +121,7 @@
             font-size: 0.9rem;
         }
 
+        /* General link styling */
         a {
             color: var(--clr-accent-blue-a30);
             text-decoration: none;
@@ -137,11 +134,11 @@
 
         table.summary {
             width: 100%;
-            border-collapse: separate;
+            border-collapse: separate; /* Allows border-radius to work with cell borders */
             border-spacing: 0;
             margin-bottom: 2.5rem;
             border-radius: 8px;
-            overflow: hidden;
+            overflow: hidden; /* Ensures content respects the border-radius */
             border: 1px solid var(--clr-surface-tonal-a20);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
@@ -165,10 +162,16 @@
             padding-right: 1.5rem;
         }
         table.summary tr:nth-child(even) {
-            background-color: var(--clr-surface-tonal-a0);
+            background-color: var(--clr-surface-tonal-a0); /* Zebra striping for readability */
         }
         table.summary tr:last-child td {
-            border-bottom: 0;
+            border-bottom: 0; /* Removes bottom border from the last row for cleaner look with border-radius */
+        }
+        table.summary tr {
+            transition: background-color 0.18s, color 0.18s;
+        }
+        table.summary tr:hover {
+            background: var(--clr-surface-tonal-a10) !important; /* !important to override potential nth-child */
         }
 
         .badge {
@@ -197,7 +200,6 @@
             font-style: italic;
             color: var(--clr-surface-a50);
             padding: 1rem 0;
-            text-align: center;
         }
 
         /* Form Styling */
@@ -242,13 +244,12 @@
             border: none;
             padding: 0.75rem 1.5rem;
             border-radius: 6px;
-            font-weight: 600;
-            font-size: 1rem;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
         }
         .form-section button[type="submit"]:hover {
-            background: var(--clr-primary-a10);
+            background: var(--clr-primary-a10); /* Visual feedback on hover */
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 0 0 2px var(--clr-light-a0); /* Enhanced hover effect */
         }
         .form-section button[type="submit"]:active {
             transform: translateY(1px);
@@ -274,6 +275,38 @@
         #newScanStatus.error {
             background-color: var(--clr-accent-red-a0);
             color: var(--clr-light-a0);
+        }
+
+.refresh-btn {
+            background: none;
+            border: 1px solid var(--clr-primary-a30);
+            color: var(--clr-primary-a30); /* SVG stroke will inherit this */
+            
+            /* Keep it relatively square for an icon button */
+            width: 1.8em; 
+            height: 1.8em;
+            padding: 0; 
+            
+            /* Change to 12px border-radius */
+            border-radius: 12px; 
+            
+            /* Centering for the SVG icon */
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            
+            cursor: pointer;
+            font-size: 0.8em; 
+            margin-left: 0.5em;
+            vertical-align: middle; 
+            line-height: 1; 
+            text-align: center; 
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+        .refresh-btn:hover {
+            background: var(--clr-primary-a30);
+            color: var(--clr-surface-a0); /* SVG stroke will inherit this on hover */
+            border-color: var(--clr-primary-a30); 
         }
 
     </style>
@@ -350,8 +383,19 @@
                             <a href="{{ url_for('static', filename='reports/' + scan_data.report_html_filename) }}" target="_blank">View Report</a>
                         {% elif scan_data.status == 'error' %}
                             <span style="color: var(--clr-accent-red-a20);">Error</span>
+                            {% if scan_data.error_message %}
+                                <small>({{ scan_data.error_message|truncate(30, True) }})</small>
+                            {% endif %}
+                        {% elif scan_data.status == 'running' or scan_data.status == 'queued' %}
+                            In Progress... 
+                            <button class="refresh-btn" onclick="window.location.reload();" title="Refresh page to update status">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 0.9em; height: 0.9em;">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                </svg>
+                            </button>
                         {% else %}
-                            In Progress...
+                            -
                         {% endif %}
                     </td>
                 </tr>

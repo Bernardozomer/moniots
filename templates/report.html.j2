@@ -100,7 +100,7 @@
             max-width: 960px;
             margin: 2rem auto;
             padding: 0 1rem;
-            line-height: 1.6; /* Improves overall text legibility */
+            line-height: 1.6;
         }
 
         h1 {
@@ -170,12 +170,6 @@
             background: var(--clr-surface-tonal-a10) !important; /* !important to override potential nth-child */
             cursor: pointer;
         }
-        /* Apply border-radius to corner cells */
-        table.summary th:first-child { border-top-left-radius: 7px; } /* 7px to fit inside the 8px table radius */
-        table.summary th:last-child { border-top-right-radius: 7px; }
-        table.summary tr:last-child td:first-child { border-bottom-left-radius: 7px; }
-        table.summary tr:last-child td:last-child { border-bottom-right-radius: 7px; }
-
 
         /* Panel for displaying detailed information about a selected device */
         .detail {
@@ -233,10 +227,6 @@
         .section-title .badge-count {
             background-color: var(--clr-accent-purple-a0);
             color: var(--clr-light-a0);
-            /* margin-left: auto; /* Ensures badge is pushed to the far right if space-between on parent isn't enough */
-        }
-        .section-content { /* Common class for content of collapsible sections */
-            /* Add any shared styling for section content areas here if needed */
         }
 
 
@@ -265,10 +255,6 @@
         table.inner tr:nth-child(even) {
             background-color: var(--clr-surface-tonal-a10); /* Zebra striping for data rows */
         }
-        table.inner th:first-child { border-top-left-radius: 5px; } /* Inner table radius adjustments */
-        table.inner th:last-child { border-top-right-radius: 5px; }
-        table.inner tr:last-child td:first-child { border-bottom-left-radius: 5px; }
-        table.inner tr:last-child td:last-child { border-bottom-right-radius: 5px; }
         table.inner tr:last-child td {
             border-bottom: 0;
         }
@@ -293,9 +279,9 @@
             color: var(--clr-light-a0);
             border: 1px solid var(--clr-surface-tonal-a20);
             padding: 0.5rem 1rem;
-            border-radius: 12px; /* Softer, more pill-like shape */
+            border-radius: 12px;
             cursor: pointer;
-            position: relative; /* For potential future pseudo-elements or positioning */
+            position: relative;
             transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.3s, transform 0.15s;
         }
         .tabs button:hover {
@@ -310,20 +296,19 @@
         }
 
         .alerts-search input {
-            background: var(--clr-surface-a10);
-            border: 1px solid var(--clr-surface-tonal-a20);
+            background: var(--clr-surface-a0);
+            border: 1px solid var(--clr-surface-tonal-a30);
             color: var(--clr-light-a0);
             padding: 0.5rem 1rem;
             border-radius: 6px;
-            width: 220px;
-            transition: border-color 0.2s, box-shadow 0.3s, background-color 0.2s, color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.3s;
+            font-family: 'IBM Plex Mono', monospace;
         }
         .alerts-search input:focus,
         .alerts-search input:hover {
-            border-color: var(--clr-primary-a0); /* Highlights input on focus/hover */
-            outline: none; /* Removes default browser outline */
-            box-shadow: 0 0 0 2px var(--clr-primary-a50); /* Custom focus ring */
-            background: var(--clr-surface-a20);
+            border-color: var(--clr-primary-a0);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--clr-primary-a50);
         }
 
         /* Accordion styling for individual alerts */
