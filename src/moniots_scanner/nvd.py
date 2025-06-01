@@ -4,8 +4,7 @@ from typing import Optional
 # so we use `# type: ignore` to suppress type errors.
 import nvdlib
 
-import models
-import util
+from . import models, util
 
 # Minimum delay between API calls to avoid rate limiting.
 MIN_API_DELAY = 0.6

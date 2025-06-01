@@ -3,8 +3,7 @@ import paramiko
 import requests
 from typing import Callable
 
-import models
-import util
+from . import models, util
 
 COMMON_CREDENTIALS = f"{util.RES_DIR}/common_credentials.csv"
 

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from jinja2 import Environment, FileSystemLoader
 
-import models
+from . import models
 
 if TYPE_CHECKING:
     from datetime import datetime as dt
