@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕵️ Moniots IoT Scanner - Management</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /** Base colors */
+            --clr-dark-a0: #000000;
+            --clr-light-a0: #ffffff;
+
+            /** Theme primary colors */
+            --clr-primary-a0: #bf7f43;
+            --clr-primary-a10: #c88d57;
+            --clr-primary-a20: #d09a6b;
+            --clr-primary-a30: #d8a87f;
+            --clr-primary-a40: #e0b694;
+            --clr-primary-a50: #e7c5a9;
+
+            /** Theme surface colors */
+            --clr-surface-a0: #212020;
+            --clr-surface-a10: #363535;
+            --clr-surface-a20: #4c4b4b;
+            --clr-surface-a30: #636262;
+            --clr-surface-a40: #7b7a7a;
+            --clr-surface-a50: #949393;
+
+            /** Theme tonal surface colors */
+            --clr-surface-tonal-a0: #2f2924;
+            --clr-surface-tonal-a10: #433d38;
+            --clr-surface-tonal-a20: #58534e;
+            --clr-surface-tonal-a30: #6e6965;
+            --clr-surface-tonal-a40: #84807d;
+            --clr-surface-tonal-a50: #9c9895;
+
+            /** Accent blue colors */
+            --clr-accent-blue-a0: #5F86A9;
+            --clr-accent-blue-a10: #7193B2;
+            --clr-accent-blue-a20: #82A1BC;
+            --clr-accent-blue-a30: #94AEC5;
+            --clr-accent-blue-a40: #A5BBCF;
+            --clr-accent-blue-a50: #B7C9D8;
+
+            /** Accent green colors */
+            --clr-accent-green-a0: #708D5F;
+            --clr-accent-green-a10: #809A71;
+            --clr-accent-green-a20: #8FA682;
+            --clr-accent-green-a30: #9FB394;
+            --clr-accent-green-a40: #AFBFA5;
+            --clr-accent-green-a50: #BFCCB7;
+
+            /** Accent purple colors */
+            --clr-accent-purple-a0: #8A6B91;
+            --clr-accent-purple-a10: #977B9D;
+            --clr-accent-purple-a20: #A48CA9;
+            --clr-accent-purple-a30: #B19CB5;
+            --clr-accent-purple-a40: #BDACC1;
+            --clr-accent-purple-a50: #CABCCE;
+
+            /** Accent ochre/gold colors */
+            --clr-accent-ochre-a0: #C4B273;
+            --clr-accent-ochre-a10: #CABA82;
+            --clr-accent-ochre-a20: #D1C392;
+            --clr-accent-ochre-a30: #D7CBA1;
+            --clr-accent-ochre-a40: #DED4B1;
+            --clr-accent-ochre-a50: #E4DCC0;
+
+            /** Accent red/terracotta colors */
+            --clr-accent-red-a0: #A86858;
+            --clr-accent-red-a10: #B2796A;
+            --clr-accent-red-a20: #BB897D;
+            --clr-accent-red-a30: #C59A8F;
+            --clr-accent-red-a40: #CEAAA1;
+            --clr-accent-red-a50: #D8BBB4;
+
+            /** Accent teal colors */
+            --clr-accent-teal-a0: #5B8C81;
+            --clr-accent-teal-a10: #6D998F;
+            --clr-accent-teal-a20: #7FA59D;
+            --clr-accent-teal-a30: #91B2AB;
+            --clr-accent-teal-a40: #A3BFB8;
+            --clr-accent-teal-a50: #B5CBC6;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--clr-surface-a0);
+            color: var(--clr-light-a0);
+        }
+
+        body {
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--clr-primary-a0);
+            margin-bottom: 0.5rem;
+        }
+        
+        h2 {
+            color: var(--clr-primary-a20);
+            margin-top: 0;
+        }
+
+        .subtitle {
+            color: var(--clr-primary-a40);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        /* General link styling */
+        a {
+            color: var(--clr-accent-blue-a30);
+            text-decoration: none;
+        }
+        a:hover,
+        a:focus {
+            color: var(--clr-accent-blue-a40);
+            text-decoration: underline;
+        }
+
+        table.summary {
+            width: 100%;
+            border-collapse: separate; /* Allows border-radius to work with cell borders */
+            border-spacing: 0;
+            margin-bottom: 2.5rem;
+            border-radius: 8px;
+            overflow: hidden; /* Ensures content respects the border-radius */
+            border: 1px solid var(--clr-surface-tonal-a20);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        table.summary th,
+        table.summary td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--clr-surface-tonal-a20);
+        }
+        table.summary th {
+            background: var(--clr-primary-a0);
+            color: var(--clr-light-a0);
+            font-weight: 600;
+        }
+        table.summary td:first-child,
+        table.summary th:first-child {
+            padding-left: 1.5rem;
+        }
+        table.summary td:last-child,
+        table.summary th:last-child {
+            padding-right: 1.5rem;
+        }
+        table.summary tr:nth-child(even) {
+            background-color: var(--clr-surface-tonal-a0); /* Zebra striping for readability */
+        }
+        table.summary tr:last-child td {
+            border-bottom: 0; /* Removes bottom border from the last row for cleaner look with border-radius */
+        }
+        table.summary tr {
+            transition: background-color 0.18s, color 0.18s;
+        }
+        table.summary tr:hover {
+            background: var(--clr-surface-tonal-a10) !important; /* !important to override potential nth-child */
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.6em;
+            border-radius: 12px;
+            font-size: 0.75em;
+            vertical-align: middle;
+            line-height: 1.2;
+            text-transform: capitalize;
+        }
+        .badge-critical { background-color: var(--clr-accent-red-a0); color: var(--clr-light-a0); }
+        .badge-high { background-color: var(--clr-primary-a0); color: var(--clr-light-a0); }
+        .badge-medium { background-color: var(--clr-accent-ochre-a0); color: var(--clr-dark-a0); }
+        .badge-low { background-color: var(--clr-accent-blue-a0); color: var(--clr-light-a0); }
+        .badge-informational { background-color: var(--clr-accent-teal-a0); color: var(--clr-light-a0); }
+        .badge-context { background-color: var(--clr-accent-green-a0); color: var(--clr-light-a0); }
+
+        /* Styling for status badges */
+        .status-queued { background-color: var(--clr-accent-blue-a20); color: var(--clr-light-a0); }
+        .status-running { background-color: var(--clr-accent-ochre-a20); color: var(--clr-dark-a0); }
+        .status-complete { background-color: var(--clr-accent-green-a10); color: var(--clr-light-a0); }
+        .status-error { background-color: var(--clr-accent-red-a10); color: var(--clr-light-a0); }
+
+        .no-data {
+            font-style: italic;
+            color: var(--clr-surface-a50);
+            padding: 1rem 0;
+        }
+
+        /* Form Styling */
+        .form-section {
+            background: var(--clr-surface-a10);
+            border: 1px solid var(--clr-surface-tonal-a20);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .form-section label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--clr-primary-a40);
+            font-weight: 600;
+        }
+        .form-section input[type="text"],
+        .form-section select {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            background: var(--clr-surface-a0);
+            border: 1px solid var(--clr-surface-tonal-a30);
+            color: var(--clr-light-a0);
+            border-radius: 6px;
+            box-sizing: border-box; /* Important for width: 100% to include padding and border */
+            font-family: 'IBM Plex Mono', monospace;
+            transition: border-color 0.2s, box-shadow 0.3s;
+        }
+        .form-section input[type="text"]:focus,
+        .form-section input[type="text"]:hover,
+        .form-section select:focus,
+        .form-section select:hover {
+            border-color: var(--clr-primary-a0);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--clr-primary-a50);
+        }
+        .form-section button[type="submit"] {
+            background: var(--clr-primary-a0);
+            color: var(--clr-light-a0);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .form-section button[type="submit"]:hover {
+            background: var(--clr-primary-a10); /* Visual feedback on hover */
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 0 0 2px var(--clr-light-a0); /* Enhanced hover effect */
+        }
+        .form-section button[type="submit"]:active {
+            transform: translateY(1px);
+        }
+        .form-grid { /* Optional: for better layout of form fields if needed */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .form-field { /* Wrapper for label + input/select */
+             /* No specific styles needed now if using simple vertical layout */
+        }
+        #newScanStatus {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            display: none; /* Hidden by default */
+        }
+        #newScanStatus.success {
+            background-color: var(--clr-accent-green-a0);
+            color: var(--clr-light-a0);
+        }
+        #newScanStatus.error {
+            background-color: var(--clr-accent-red-a0);
+            color: var(--clr-light-a0);
+        }
+
+.refresh-btn {
+            background: none;
+            border: 1px solid var(--clr-primary-a30);
+            color: var(--clr-primary-a30); /* SVG stroke will inherit this */
+            
+            /* Keep it relatively square for an icon button */
+            width: 1.8em; 
+            height: 1.8em;
+            padding: 0; 
+            
+            /* Change to 12px border-radius */
+            border-radius: 12px; 
+            
+            /* Centering for the SVG icon */
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            
+            cursor: pointer;
+            font-size: 0.8em; 
+            margin-left: 0.5em;
+            vertical-align: middle; 
+            line-height: 1; 
+            text-align: center; 
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+        .refresh-btn:hover {
+            background: var(--clr-primary-a30);
+            color: var(--clr-surface-a0); /* SVG stroke will inherit this on hover */
+            border-color: var(--clr-primary-a30); 
+        }
+
+    </style>
+</head>
+<body>
+    <h1>🕵️ Moniots IoT Security Scanner</h1>
+    <div class="subtitle">Web Management Interface</div>
+
+    <div class="form-section">
+        <h2>Start a New Scan</h2>
+        <form id="scanForm">
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="network_range">Network Range (CIDR):</label>
+                    <input type="text" id="network_range" name="network_range" placeholder="e.g., 192.168.1.0/24" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="severity">Minimum Severity:</label>
+                    <select id="severity" name="severity">
+                        {% for sev_choice in severity_choices %}
+                            <option value="{{ sev_choice }}" {% if sev_choice == 'medium' %}selected{% endif %}>
+                                {{ sev_choice|capitalize }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+             <div class="form-grid">
+                <div class="form-field">
+                    <label for="nvd_api_key">NVD API Key (Optional):</label>
+                    <input type="text" id="nvd_api_key" name="nvd_api_key" placeholder="Enter NVD API Key">
+                </div>
+                 <div class="form-field">
+                    <label for="zap_api_key">ZAP API Key (Optional):</label>
+                    <input type="text" id="zap_api_key" name="zap_api_key" placeholder="Enter ZAP API Key">
+                </div>
+            </div>
+            <div class="form-field">
+                <label for="local_zap_proxy">Local ZAP Proxy (Optional):</label>
+                <input type="text" id="local_zap_proxy" name="local_zap_proxy" placeholder="e.g., http://127.0.0.1:8080">
+            </div>
+
+            <button type="submit">Start Scan</button>
+        </form>
+        <div id="newScanStatus"></div>
+    </div>
+
+    <h2>Scan History</h2>
+    <table class="summary">
+        <thead>
+            <tr>
+                <th>Scan ID</th>
+                <th>Network</th>
+                <th>Min. Severity</th>
+                <th>Started At</th>
+                <th>Status</th>
+                <th>Report</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if scans_list %}
+                {% for scan_id, scan_data in scans_list %}
+                <tr>
+                    <td>{{ scan_id[:8] }}...</td>
+                    <td>{{ scan_data.network }}</td>
+                    <td>{{ scan_data.severity|capitalize }}</td>
+                    <td>{{ scan_data.start_time }}</td>
+                    <td>
+                        <span class="badge status-{{ scan_data.status|lower }}">{{ scan_data.status|capitalize }}</span>
+                    </td>
+                    <td>
+                        {% if scan_data.status == 'complete' and scan_data.report_html_filename %}
+                            <a href="{{ url_for('static', filename='reports/' + scan_data.report_html_filename) }}" target="_blank">View Report</a>
+                        {% elif scan_data.status == 'error' %}
+                            <span style="color: var(--clr-accent-red-a20);">Error</span>
+                            {% if scan_data.error_message %}
+                                <small>({{ scan_data.error_message|truncate(30, True) }})</small>
+                            {% endif %}
+                        {% elif scan_data.status == 'running' or scan_data.status == 'queued' %}
+                            In Progress... 
+                            <button class="refresh-btn" onclick="window.location.reload();" title="Refresh page to update status">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 0.9em; height: 0.9em;">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                </svg>
+                            </button>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="6" class="no-data">No scans have been run yet. Start one above!</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('scanForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const statusDiv = document.getElementById('newScanStatus');
+            
+            statusDiv.textContent = 'Starting scan... Please wait.';
+            statusDiv.className = ''; // Clear previous classes
+            statusDiv.style.display = 'block';
+
+            try {
+                const response = await fetch("{{ url_for('start_scan_route') }}", {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (response.ok && data.scan_id) {
+                    statusDiv.textContent = `Scan queued successfully with ID: ${data.scan_id}. The page will refresh in 5 seconds to update the list. You can also monitor status below.`;
+                    statusDiv.classList.add('success');
+                    // Reload the page after a delay to show the new scan in the history
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 5000); // 5 seconds delay
+                } else {
+                    statusDiv.textContent = `Error starting scan: ${data.error || 'Unknown error'}`;
+                    statusDiv.classList.add('error');
+                }
+            } catch (error) {
+                statusDiv.textContent = `Network error or server unavailable: ${error}`;
+                statusDiv.classList.add('error');
+            }
+        });
+    </script>
+</body>
+</html>

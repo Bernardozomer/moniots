@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 
 from . import exploitdb, creds, discovery, insecure_srv, models, nvd, zap
