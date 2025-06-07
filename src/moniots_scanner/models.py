@@ -107,8 +107,8 @@ class Severity(Enum):
 
 class AlertSource(str, Enum):
     CREDS = "Moniots Creds"
-    INSECURE_SRV = "Moniots Insecure Services"
-    ZAP = "OWASP Zap"
+    INSECURE_SRV = "Moniots Services"
+    ZAP = "ZAP"
     EXPLOITDB = "ExploitDB"
     NVD = "NVD"
 
