@@ -4,22 +4,10 @@ from typing import Optional
 # so we use `# type: ignore` to suppress type errors.
 import nvdlib
 
-from . import models, util
+from . import models
 
 # Minimum delay between API calls to avoid rate limiting.
 MIN_API_DELAY = 0.6
-
-
-def batch_query_nvd(
-    devices: list[models.Device], nvd_api_key: Optional[str] = None
-) -> dict[models.Device, list[models.NVDAlert]]:
-    """Run find_cves_for_device in parallel over all devices."""
-    return util.batch_test(
-        devices,
-        "Querying NVD",
-        query_nvd,
-        nvd_api_key,
-    )
 
 
 def query_nvd(

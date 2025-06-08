@@ -1,28 +1,14 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Callable
-
-from tqdm import tqdm
-
-from . import models
+from alive_progress import alive_bar, alive_it
 
 RES_DIR = "./res"
 
 
-def batch_test(
-    devices: list[models.Device], desc: str, test_func: Callable, *args
-) -> dict[models.Device, Any]:
-    """Run a test function in parallel over all devices."""
-    results = {}
-    with ThreadPoolExecutor() as pool:
-        futures = {pool.submit(test_func, d, *args): d for d in devices}
-
-        for fut in pbar(as_completed(futures), desc=desc, total=len(futures)):
-            device = futures[fut]
-            results[device] = fut.result()
-
-    return results
+def pbar(iterable, desc=None, total=None):
+    """A standard alive-progress wrapper with common parameters."""
+    return alive_it(
+        iterable, total=total, title=desc, bar="smooth", spinner="dots_waves"
+    )
 
 
-def pbar(iterable=None, desc=None, total=None, colour="green"):
-    """A standard tqdm wrapper with common parameters."""
-    return tqdm(iterable, desc=desc, total=total, colour=colour)
+def spinner(desc=None):
+    return alive_bar(title=desc, spinner="waves")

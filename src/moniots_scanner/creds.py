@@ -8,24 +8,9 @@ from . import models, util
 COMMON_CREDENTIALS = f"{util.RES_DIR}/common_credentials.csv"
 
 
-def batch_test_common_credentials(
-    devices: list[models.Device],
-) -> dict[models.Device, list[models.CommonCredentialsAlert]]:
-    """Run vulnerability tests on devices and return structured results."""
-    # Load credentials.
-    creds = []
-    with open(COMMON_CREDENTIALS, "r") as fp:
-        reader = csv.reader(fp)
-        creds = [(row[0], row[1]) for row in reader if len(row) >= 2]
-
-    return util.batch_test(
-        devices, "Testing for common credentials", test_common_credentials, creds
-    )
-
-
 def test_common_credentials(
     device: models.Device, creds: list[tuple[str, str]], timeout_seconds: int = 5
-):
+) -> list[models.CommonCredentialsAlert]:
     """Attempt to connect to a device with multiple sets of common credentials."""
     alerts = []
 
@@ -71,3 +56,10 @@ def test_common_credentials(
     check_and_alert("http", http_connect)
 
     return alerts
+
+
+def load_cred_data() -> list[tuple[str, str]]:
+    """Load insecure services from a YAML file."""
+    with open(COMMON_CREDENTIALS, "r") as fp:
+        reader = csv.reader(fp)
+        return [(row[0], row[1]) for row in reader if len(row) >= 2]

@@ -7,21 +7,6 @@ from . import models, util
 INSECURE_SERVICES = f"{util.RES_DIR}/insecure_services.yml"
 
 
-def batch_test_insecure_services(
-    devices: list[models.Device],
-) -> dict[models.Device, list[models.InsecureServiceAlert]]:
-    """Check devices for insecure services in parallel."""
-    # Load service data.
-    services = _load_service_data()
-
-    return util.batch_test(
-        devices,
-        "Testing for insecure services",
-        test_insecure_services,
-        services,
-    )
-
-
 def test_insecure_services(
     device: models.Device, services: dict[str, dict[str, str]]
 ) -> list[models.InsecureServiceAlert]:
@@ -65,7 +50,7 @@ def test_insecure_services(
     return alerts
 
 
-def _load_service_data() -> dict[str, dict]:
+def load_service_data() -> dict[str, dict]:
     """Load insecure services from a YAML file."""
     yaml.SafeDumper.ignore_aliases = lambda *_, **__: True
 
