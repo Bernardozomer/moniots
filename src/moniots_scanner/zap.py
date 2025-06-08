@@ -4,7 +4,6 @@ from typing import Callable
 from zapv2 import ZAPv2
 
 from . import models
-from .util import pbar
 
 
 def run_zap(
@@ -18,7 +17,7 @@ def run_zap(
     zap.pscan.enable_all_scanners()
     alerts = {}
 
-    for device in pbar(devices, desc="Scanning web apps with OWASP ZAP"):
+    for device in devices:
         ip = device.ip
         session_name = f"moniots_{ip}"
         zap.core.new_session(session_name, overwrite=True)
@@ -60,16 +59,8 @@ def _run_scan(
     # Give the scanner a chance to start.
     _sleep()
 
-    with pbar(total=100, desc=desc) as pb:
-        last_progress = 0
-
-        while (progress := int(status_func(scan_id))) < 100:
-            pb.update(progress - last_progress)
-            last_progress = progress
-            _sleep()
-
-        # Ensure the bar reaches 100%
-        pb.update(100 - last_progress)
+    while int(status_func(scan_id)) < 100:
+        pass
 
 
 def _parse_zap_alerts(zap_alerts: list[dict]) -> list[models.ZAPAlert]:
