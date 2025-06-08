@@ -11,10 +11,11 @@ def orchestrate_scan(
     This function is intended to be called by different interfaces (CLI, Web UI).
     """
     # Discover and parse devices.
-    print(f"Scanning {args.network}")
-    scanned_hosts = discovery.discover_devices(args.network)
-    devices = discovery.parse_device_info(scanned_hosts)
-    print(f"Discovered {len(devices)} devices.")
+    with util.spinner(desc=f"Scanning {args.network}"):
+        scanned_hosts = discovery.discover_devices(args.network)
+        devices = discovery.parse_device_info(scanned_hosts)
+
+    print(f"{len(devices)} devices discovered in {args.network}.")
 
     if not devices:
         return {}
@@ -28,7 +29,7 @@ def run_tests(
 ) -> dict[models.Device, list[models.Alert]]:
     """
     Runs vulnerability tests on devices using a centralized worker pool.
-    It creates a queue of granular (device, test_function) tasks and
+    It creates a queue of granular (device, test) tasks and
     processes them concurrently to optimize I/O-bound operations.
     """
     # Final dictionary to aggregate all alerts, initialized for each device.
@@ -49,7 +50,7 @@ def run_tests(
         print("Warning: Insecure services file not found. Skipping services test.")
         insecure_services_data = {}
 
-    # This map will hold the context (device, task_type) for each future.
+    # This map will hold the context (device, test) for each future.
     futures = {}
     zap_future = None
 
@@ -113,12 +114,14 @@ def run_tests(
 
         # Process the ZAP scan result after it's done.
         if zap_future:
-            print("Waiting for ZAP scan to complete...")
             try:
-                zap_results = zap_future.result()
+                with util.spinner(desc="Waiting for ZAP scan to complete"):
+                    zap_results = zap_future.result()
+
                 for device, alerts in zap_results.items():
                     if alerts:
                         all_alerts[device].extend(alerts)
+
                 print("ZAP scan results merged.")
             except Exception as e:
                 print(f"ZAP scan failed: {e}")
